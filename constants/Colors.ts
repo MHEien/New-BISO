@@ -4,9 +4,9 @@ const tintColorDark = '#8bc34a';
 export default {
   light: {
     text: '#000',
-    background: '#fff',
-    primaryBackground: '#212121',
-    primary: '#8bc34a',
+    background: '#f0f3f5',
+    primaryBackground: '#fff',
+    primary: '#3DA9E0',
     primaryText: '#fff',
     iconColor: '#fff',
     borderBottomColor: '#e0e0e0',

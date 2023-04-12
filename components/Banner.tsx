@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Button } from './Themed';
 import { Link } from 'expo-router';
 import i18n from '../constants/localization';
+import { useThemeColor } from './Themed';
 
 interface BannerProps {
   isAuthenticated: boolean;
@@ -10,18 +11,28 @@ interface BannerProps {
   style?: StyleProp<ViewStyle>;
 }
 
+
 const Banner: React.FC<BannerProps> = ({ isAuthenticated, onLoginPress, style }) => {
   if (isAuthenticated) {
     return null;
   }
+  const bannerColor = useThemeColor({}, 'primaryBackground');
+  const textColor = useThemeColor({}, 'text');
+  const buttonColor = useThemeColor({}, 'primary');
+  const buttonTextColor = useThemeColor({}, 'primaryText');
+
 
   return (
-    <View style={[styles.banner, style]}>
-      <Text style={styles.welcomeText}>{i18n.t('welcome_message')}</Text>
+    <View style={[styles.banner, style, { backgroundColor: bannerColor }]}>
+      <Text style={[styles.welcomeText, { color: textColor }]}>
+        {i18n.t('welcome_message')}
+      </Text>
       <Link href={'/login'}>
-      <View style={styles.loginButton}>
-        <Text style={styles.buttonText}>{i18n.t('login')}</Text>
-      </View>
+        <View style={[styles.loginButton, { backgroundColor: buttonColor }]}>
+          <Text style={[styles.buttonText, { color: buttonTextColor }]}>
+            {i18n.t('login')}
+          </Text>
+        </View>
       </Link>
     </View>
   );
@@ -33,7 +44,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#8bc34a',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     width: '100%',
@@ -41,7 +51,6 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ffffff',
   },
   loginButton: {
     borderRadius: 25,
