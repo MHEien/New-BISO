@@ -8,22 +8,24 @@ import i18n from '../constants/localization';
 import TextInput from '../components/TextInput';
 import { Link } from 'expo-router';
 import { useThemeColor } from '../components/Themed';
+import { useNavigation } from 'expo-router';
 
 export default function Login() {
     const { user } = useAuthentication();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigation = useNavigation();
 
     const linkTextColor = useThemeColor({}, 'text');
+
 
     
     useEffect(() => {
         if (user) {
-        setIsAuthenticated(true);
+        navigation.goBack();
         }
     }, [user]);
-    
+
 
 
     return (

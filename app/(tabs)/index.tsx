@@ -8,10 +8,10 @@ import { Link } from 'expo-router';
 export default function Home() {
   
   const { user } = useAuthentication();
-  //const isAuthenticated = user ? true : false;
+  const isAuthenticated = user ? true : false;
 
   //Keeping this state while under development.
-  const isAuthenticated = false;
+  //const isAuthenticated = false;
 
 
   const newsPosts = [
