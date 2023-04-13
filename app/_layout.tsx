@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import i18n from '../constants/localization';
+import { usePathname } from 'expo-router';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -16,6 +17,8 @@ export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
+
+
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -37,6 +40,7 @@ export default function RootLayout() {
   );
 }
 
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
@@ -47,9 +51,6 @@ function RootLayoutNav() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="login" />
-          <Stack.Screen name="register" />
-          <Stack.Screen name="profile" />
         </Stack>
         </LanguageProvider>
       </ThemeProvider>

@@ -19,6 +19,7 @@ const MyScreen: React.FC = () => {
   const expensesTranslated = i18n.t('expenses');
   const settingsTranslated = i18n.t('settings');
   const profileTranslated = i18n.t('profile');
+  const moneyIcon = <Ionicons name="ios-wallet" size={24} color={iconColor} />;
 
   const router = useRouter();
   const navigation = useNavigation();
@@ -40,7 +41,19 @@ const MyScreen: React.FC = () => {
       key: 'item3',
       icon: profileIcon,
       title: profileTranslated,
-      onPress: () => navigation.navigate('profile'),
+      onPress: () => router.push('profile'),
+    },
+    {
+      key: 'item4',
+      icon: profileIcon,
+      title: 'Events',
+      onPress: () => router.push('events'),
+    },
+    {
+      key: 'item5',
+      icon: moneyIcon,
+      title: 'Create Expense',
+      onPress: () => router.push('createExpense'),
     },
   ];
 
