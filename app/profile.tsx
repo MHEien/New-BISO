@@ -11,13 +11,15 @@ import ProfileImage from '../components/ProfileImage';
 import Switch from '../components/Switch';
 import { setDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 const screenWidth = Dimensions.get('window').width;
 
 const Profile: React.FC = () => {
 const icon = <IonIcons name="information-circle-outline" size={24} color={useThemeColor({}, 'iconColor')} />;
     
-    const { user, profile } = useAuthentication();
+    const { user } = useAuthentication();
+    const { profile, updateUserProfile } = useUserProfile();
     const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
     const [allTags, setAllTags] = React.useState<string[]>([
         'Tag 1',
@@ -28,16 +30,6 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
         'Tag 6'
     ]);
     const [selectorVisible, setSelectorVisible] = React.useState(false);
-    const [image, setImage] = React.useState(null);
-    const [firstName, setFirstName] = React.useState(profile?.firstName || '');
-    const [lastName, setLastName] = React.useState(profile?.lastName || '');
-    const [address, setAddress] = React.useState(profile?.address || '');
-    const [postalCode, setPostalCode] = React.useState(profile?.zipCode || '');
-    const [city, setCity] = React.useState(profile?.city || '');
-    const [phoneNumber, setPhoneNumber] = React.useState(profile?.phoneNumber || '');
-    const [email, setEmail] = React.useState(profile?.email || '');
-    const [bankAccount, setBankAccount] = React.useState(profile?.bankAccount || '');
-    const [bic, setBic] = React.useState(profile?.bic || '');
     
 
 
@@ -45,7 +37,7 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
 
     const addressDetails = (
         <View>
-            <TextInput label="Address" style={styles.input} onChangeText={setAddress} value={address} />
+            <TextInput label="Address" style={styles.input} onChangeText={(text) => updateUserProfile({ address: text })} value={profile?.address} />
             <TextInput label="Postal code" style={styles.input} />
             <TextInput label="City" style={styles.input} />
         </View>
