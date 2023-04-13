@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, TextInput as DefaultInput, StyleSheet, Animated, TextInputProps } from 'react-native';
 import { TextInput as DefaultTextInput } from './Themed';
 import { useThemeColor } from './Themed';
 
 interface Props extends TextInputProps {
     label: string;
+    style?: any;
   }
   
 
@@ -14,6 +15,12 @@ const TextInput: React.FC<Props> = ({ label, ...otherProps }) => {
   
   const labelColor = useThemeColor({}, 'text');
 
+  useEffect(() => {
+    if (otherProps.value) {
+      setIsFocused(true);
+      animateLabel(0);
+    }
+  }, []);
 
   const animateLabel = (toValue: number) => {
     Animated.timing(labelPosition, {
@@ -31,6 +38,7 @@ const TextInput: React.FC<Props> = ({ label, ...otherProps }) => {
   const handleBlur = () => {
     if (!otherProps.value) {
       setIsFocused(false);
+      {otherProps.onBlur}
       animateLabel(1);
     }
   };
@@ -62,7 +70,9 @@ const TextInput: React.FC<Props> = ({ label, ...otherProps }) => {
       <DefaultTextInput
         {...otherProps}
         onFocus={handleFocus}
-        onBlur={handleBlur}
+        onBlur={() => 
+          handleBlur()
+        }
         style={styles.input}
       />
     </View>
@@ -80,9 +90,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   input: {
-    height: 40,
     fontSize: 16,
-    width: '100%',
     borderBottomWidth: 1,
     padding: 0,
     backgroundColor: 'transparent',

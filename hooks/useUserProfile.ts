@@ -2,13 +2,7 @@ import { useEffect, useState } from 'react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthentication } from './useAuthentication';
-
-export interface UserProfile {
-  address?: string;
-  city?: string;
-  zip?: string;
-  // Add other fields as needed
-}
+import { UserProfile } from '../types';
 
 export function useUserProfile() {
   const { user } = useAuthentication();
@@ -22,9 +16,15 @@ export function useUserProfile() {
       const userData = userDoc.data();
       if (userData) {
         setProfile({
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          phone: userData.phone,
           address: userData.address,
           city: userData.city,
           zip: userData.zip,
+          bankAccount: userData.bankAccountNumber,
+          subunits: userData.subunits,
         });
       }
     };
@@ -38,6 +38,7 @@ export function useUserProfile() {
     try {
       await updateDoc(doc(db, 'users', user.uid), updatedFields);
       setProfile((prevProfile) => ({ ...prevProfile, ...updatedFields }));
+      console.log('User profile updated successfully!');
     } catch (error) {
       console.error('Error updating user profile:', error);
     }

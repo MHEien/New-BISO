@@ -13,21 +13,8 @@ import { useAuthentication } from '../hooks/useAuthentication';
 import { db } from '../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { View, Text } from '../components/Themed';
-
-
-
-interface Profile {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    departments: Department[];
-  }
-
-interface Department {
-  id: number;
-  name: string;
-}
+import { useUserProfile } from '../hooks/useUserProfile';
+import { Department } from '../types';
 
 interface Attachment {
   description: string;
@@ -52,61 +39,11 @@ const SubmitExpense: React.FC = () => {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [preferredDepartments, setPreferredDepartments] = useState<Department[]>([]);
   const [showAllDepartments, setShowAllDepartments] = useState(false);
-  const [profile, setProfile] = useState<Profile>({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    departments: [],
-  });  
-
-
-  //Fetch profile data from users collection
-  const getProfile = async () => {
-    if (!user) {
-      setProfile({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        departments: [],
-      });
-      return;
-    }
-    
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const userData = userDoc.data();
-    if (userData) {
-      setProfile({
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        address: userData.address,
-        departments: userData.departments,
-      });
-    } else {
-      setProfile({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        departments: [],
-      });
-    }
-  };
+  const { profile } = useUserProfile();
+  const [withoutProfile, setWithoutProfile] = useState('');
   
 
   const primaryColor = useThemeColor({}, 'primary');
-
-
-
-
-  useEffect(() => {
-    (async () => {
-      setDepartments(getDepartments());
-      await getProfile();
-    })();
-  }, [user]);
   
 
   const addAttachment = () => {
@@ -127,7 +64,7 @@ const SubmitExpense: React.FC = () => {
   return (
     <View>
         <View style={[{ flexDirection: 'row', paddingTop: 10 }]}>
-        <Text>Hi {profile.name}</Text>
+        <Text>Hi {profile?.firstName} {profile?.lastName}!</Text>
         <Link href="/profile" style={{ color: primaryColor, fontWeight: 'bold' }}>
             <Text> Profile</Text>
         </Link>

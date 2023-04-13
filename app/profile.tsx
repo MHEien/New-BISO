@@ -8,10 +8,11 @@ import Tag from '../components/Tag';
 import Selector from '../components/Selector';
 import { useAuthentication } from '../hooks/useAuthentication';
 import ProfileImage from '../components/ProfileImage';
-import Switch from '../components/Switch';
+import SwitchSelector from 'react-native-switch-selector';
 import { setDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { useUserProfile } from '../hooks/useUserProfile';
+import { useUserProfile, getDepartments } from '../hooks';
+import { Department, UserProfile } from '../types';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -20,91 +21,96 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
     
     const { user } = useAuthentication();
     const { profile, updateUserProfile } = useUserProfile();
+    const [newProfile, setNewProfile] = React.useState<UserProfile | null>(null);
+    const [selectedDepartment, setSelectedDepartment] = React.useState('');
     const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
-    const [allTags, setAllTags] = React.useState<string[]>([
-        'Tag 1',
-        'Tag 2',
-        'Tag 3',	
-        'Tag 4',
-        'Tag 5',
-        'Tag 6'
+    const [departments, setDepartments] = React.useState([
+        { campus: "", id: 0, name: "" }
     ]);
     const [selectorVisible, setSelectorVisible] = React.useState(false);
-    
+
+    React.useEffect(() => {
+        if (profile) {
+            setNewProfile(profile);
+            setSelectedTags(profile?.subunits || []);
+        }
+    }, [profile]);
+
+    React.useEffect(() => {
+        const fetchDepartments = async () => {
+          const departments = await getDepartments();
+          setDepartments(departments);
+        };
+        fetchDepartments();
+      }, []);
+      
+
 
 
     if (!user) return null;
 
     const addressDetails = (
         <View>
-            <TextInput label="Address" style={styles.input} onChangeText={(text) => updateUserProfile({ address: text })} value={profile?.address} />
-            <TextInput label="Postal code" style={styles.input} />
-            <TextInput label="City" style={styles.input} />
+            <TextInput label="Address" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, address: value })} value={newProfile?.address} />
+            <TextInput label="Postal code" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, zip: value })} value={newProfile?.zip} />
+            <TextInput label="City" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, city: value })} value={newProfile?.city} />
         </View>
     );
 
     const contactDetails = (
         <View>
-            <TextInput label="Phone number" style={styles.input} />
-            <TextInput label="Email" style={styles.input} />
+            <TextInput label="Phone number" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, phone: value })} value={newProfile?.phone} />
+            <TextInput label="Email" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, email: value })} value={newProfile?.email} />
         </View>
     );
 
+
+    //Display a SwitchSelector to choose between norwegian and international bank account. If norwegian, display bank account number input field, if international display a IBAN and BIC field.
     const paymentDetails = (
         <View>
-            <View style={styles.column}>
-                <TextInput label="Bank account" style={styles.input} />
-                <TextInput label="BIC (Only if IBAN is provided)" style={styles.input} />
-            </View>
-            <View 
-                style={[styles.column, { alignItems: 'center' }]}
-            >
-                <Switch initialValue={true} onClick={(value) => console.log(value)} isEnabled={true} mode='horizontal' />
-            </View>
+            <TextInput label="Bank account number" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, bankAccount: value })} value={newProfile?.bankAccount} />
+            <TextInput label="BIC (If international bank)" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, bic: value })} value={newProfile?.bic} />
         </View>
-
     );
+
+
 
 
     const departmentDetails = (
         <View>
-            {selectedTags.map((tag) => (
-                <Tag
-                    color='blue'
-                    content={tag}
-                    onRemove={() => {
-                        const newTags = selectedTags.filter((t) => t !== tag);
-                        setSelectedTags(newTags);
-                    }}
-                    key={tag}
-                />
-            ))}
-            <Selector
-                visible={selectorVisible}
-                data={allTags.map((tag) => ({ id: tag, color: 'blue', label: tag }))}
-                onSelect={(item) => {
-                    const newTags = [...selectedTags, item.label];
-                    setSelectedTags(newTags);
-                    setSelectorVisible(false);
-                }}
-                onClose={() => setSelectorVisible(false)}
+          {selectedTags.map((tag) => (
+            <Tag
+              color='blue'
+              content={tag}
+              onRemove={() => {
+                const newTags = selectedTags.filter((t) => t !== tag);
+                setSelectedTags(newTags);
+              }}
+              key={tag}
             />
-            <TouchableOpacity
-                style={styles.addTagButton}
-                onPress={() => setSelectorVisible(true)}
-            >
-                <Text style={styles.addTagButtonText}>Add tag</Text>
-            </TouchableOpacity>
+          ))}
+          <Selector
+            visible={selectorVisible}
+            data={departments.map((department) => ({ id: department.id ? department.id.toString() : '', color: 'blue', label: department.name }))}
+            enableSearch
+            onSelect={(item) => {
+              const newTags = [...selectedTags, item.label];
+              setSelectedTags(newTags);
+              setSelectorVisible(false);
+            }}
+            onClose={() => setSelectorVisible(false)}
+          />
+          <TouchableOpacity
+            style={styles.addTagButton}
+            onPress={() => setSelectorVisible(true)}
+          >
+            <Text style={styles.addTagButtonText}>Add units</Text>
+          </TouchableOpacity>
         </View>
-    );
-
-    const saveProfile = async (profileData: any) => {
-        if (user) {
-          await setDoc(doc(db, 'users', user.uid), profileData, { merge: true });
-        }
-      };
+      );
       
-
+      
+    
 
 
   return (
@@ -138,7 +144,10 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
     <Button
         title="Save"
         onPress={() => {
-            console.log(user.uid);
+            if (newProfile) {
+                updateUserProfile(newProfile);
+            }
+
         }}
     />
     </View>

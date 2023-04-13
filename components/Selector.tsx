@@ -4,44 +4,78 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  TextInput,
+  Dimensions
 } from 'react-native';
 import { View, Text, useThemeColor } from '../components/Themed';
+import { SelectorProps } from '../types';
 
-interface SelectorProps {
-  visible: boolean;
-  data: Array<{ id: string; color: string; label: string }>;
-  onSelect: (item: { id: string; color: string; label: string }) => void;
-  onClose: () => void;
-}
+const { width } = Dimensions.get('window');
 
 const Selector: React.FC<SelectorProps> = ({
   visible,
   data,
   onSelect,
   onClose,
+  selectedItems = [],
+  enableSearch = false,
 }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const textColor = useThemeColor({}, 'text');
+  const buttonColor = useThemeColor({}, 'primary');
+
+  const filteredData = data.filter((item) =>
+  item.label
+    ? item.label.toLowerCase().includes(searchTerm.toLowerCase())
+    : false
+);
+
+
+
   return (
     <Modal visible={visible} transparent onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Select an item</Text>
+          <Text style={styles.title}>Select a department</Text>
+          {enableSearch && (
+            <TextInput
+              style={[styles.searchInput, { width: width, color: textColor }]}
+              placeholder='Search'
+              placeholderTextColor={textColor}
+              onChangeText={setSearchTerm}
+              value={searchTerm}
+            />
+          )}
           <FlatList
-            data={data}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => {
-                  onSelect(item);
-                  onClose();
-                }}
-              >
-                <Text style={styles.listItemText}>{item.label}</Text>
-              </TouchableOpacity>
-            )}
+            data={filteredData}
+            renderItem={({ item }) => {
+              const isSelected = selectedItems?.includes(item.label);
+
+              return (
+                <TouchableOpacity
+                  style={[
+                    styles.listItem,
+                    isSelected ? styles.listItemSelected : null,
+                  ]}
+                  onPress={() => onSelect(item)}
+                >
+                  <Text
+                    style={[
+                      styles.listItemText,
+                      isSelected ? styles.listItemSelectedText : null,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
             keyExtractor={(item) => item.id}
           />
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text style={[styles.closeButtonText, { color: buttonColor }]}>
+              Close
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -54,11 +88,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
   modalContent: {
-    borderRadius: 10,
-    padding: 20,
-    width: '80%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 20,
@@ -77,8 +112,20 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 18,
-    color: 'blue',
   },
+  listItemSelected: {
+    backgroundColor: 'blue',
+  },
+  listItemSelectedText: {
+    color: 'white',
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+  },
+
 });
 
 export default Selector;
