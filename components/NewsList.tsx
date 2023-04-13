@@ -19,19 +19,20 @@ const screenWidth = Dimensions.get('window').width;
 
 const NewsList: React.FC<NewsListProps> = ({ newsPosts }) => {
   const newsPostContainerColor = useThemeColor({}, 'primaryBackground');
+  const textColor = useThemeColor({}, 'text');
 
   const renderItem = ({ item }: { item: NewsPost }) => (
     <View style={[styles.newsPostContainer, { backgroundColor: newsPostContainerColor }]}>
       <View style={styles.header}>
         <Image source={{ uri: item.departmentLogo }} style={styles.departmentLogo} />
         <View style={styles.departmentInfo}>
-          <Text style={styles.departmentTitle}>{item.department}</Text>
+          <Text style={[styles.departmentTitle, { color: textColor }]}>{item.department}</Text>
           <Text style={styles.postDate}>{item.date}</Text>
         </View>
       </View>
       <Image source={{ uri: item.image }} style={styles.postImage} />
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.subtitle}>{item.subtitle}</Text>
+      <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
+      <Text style={[styles.subtitle, { color: textColor }]}>{item.subtitle}</Text>
     </View>
   );
 

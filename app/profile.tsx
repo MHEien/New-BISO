@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Button } from 'react-native';
 import Accordion from '../components/Accordion';
 import IonIcons from '@expo/vector-icons/Ionicons';
 import { useThemeColor } from '../components/Themed';
@@ -9,13 +9,15 @@ import Selector from '../components/Selector';
 import { useAuthentication } from '../hooks/useAuthentication';
 import ProfileImage from '../components/ProfileImage';
 import Switch from '../components/Switch';
+import { setDoc, doc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const screenWidth = Dimensions.get('window').width;
 
 const Profile: React.FC = () => {
 const icon = <IonIcons name="information-circle-outline" size={24} color={useThemeColor({}, 'iconColor')} />;
     
-    const { user } = useAuthentication();
+    const { user, profile } = useAuthentication();
     const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
     const [allTags, setAllTags] = React.useState<string[]>([
         'Tag 1',
@@ -27,12 +29,23 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
     ]);
     const [selectorVisible, setSelectorVisible] = React.useState(false);
     const [image, setImage] = React.useState(null);
+    const [firstName, setFirstName] = React.useState(profile?.firstName || '');
+    const [lastName, setLastName] = React.useState(profile?.lastName || '');
+    const [address, setAddress] = React.useState(profile?.address || '');
+    const [postalCode, setPostalCode] = React.useState(profile?.zipCode || '');
+    const [city, setCity] = React.useState(profile?.city || '');
+    const [phoneNumber, setPhoneNumber] = React.useState(profile?.phoneNumber || '');
+    const [email, setEmail] = React.useState(profile?.email || '');
+    const [bankAccount, setBankAccount] = React.useState(profile?.bankAccount || '');
+    const [bic, setBic] = React.useState(profile?.bic || '');
+    
+
 
     if (!user) return null;
 
     const addressDetails = (
         <View>
-            <TextInput label="Address" style={styles.input} />
+            <TextInput label="Address" style={styles.input} onChangeText={setAddress} value={address} />
             <TextInput label="Postal code" style={styles.input} />
             <TextInput label="City" style={styles.input} />
         </View>
@@ -93,7 +106,12 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
         </View>
     );
 
-    
+    const saveProfile = async (profileData: any) => {
+        if (user) {
+          await setDoc(doc(db, 'users', user.uid), profileData, { merge: true });
+        }
+      };
+      
 
 
 
@@ -125,7 +143,12 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
         icon={icon}
         content={departmentDetails}
       />
-
+    <Button
+        title="Save"
+        onPress={() => {
+            console.log(user.uid);
+        }}
+    />
     </View>
   );
 };

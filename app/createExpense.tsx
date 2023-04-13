@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
   TextInput,
   Button,
   TouchableOpacity,
@@ -9,12 +7,16 @@ import {
   Switch,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { useThemeColor } from '../components/Themed';
+import { useAuthentication } from '../hooks/useAuthentication';
+import { db } from '../config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { View, Text } from '../components/Themed';
 
 
 
-interface Contact {
+interface Profile {
     name: string;
     email: string;
     phone: string;
@@ -33,15 +35,6 @@ interface Attachment {
   date: Date;
 }
 
-const getProfile = (): Contact | null => {
-    return {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: '123-456-7890',
-      address: '123 Main St, Springfield',
-      departments: [{ id: 1, name: 'IT' }],
-    };
-  };
 
   const getDepartments = (): Department[] => {
     return [
@@ -52,13 +45,56 @@ const getProfile = (): Contact | null => {
   };
 
 const SubmitExpense: React.FC = () => {
-    const contact: Contact | null = getProfile();
+  const { user } = useAuthentication();
+  const uid = user?.uid
   const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [preferredDepartments, setPreferredDepartments] = useState<Department[]>([]);
   const [showAllDepartments, setShowAllDepartments] = useState(false);
-  const router = useRouter();
+  const [profile, setProfile] = useState<Profile>({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    departments: [],
+  });  
+
+
+  //Fetch profile data from users collection
+  const getProfile = async () => {
+    if (!user) {
+      setProfile({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        departments: [],
+      });
+      return;
+    }
+    
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const userData = userDoc.data();
+    if (userData) {
+      setProfile({
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        address: userData.address,
+        departments: userData.departments,
+      });
+    } else {
+      setProfile({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        departments: [],
+      });
+    }
+  };
+  
 
   const primaryColor = useThemeColor({}, 'primary');
 
@@ -67,15 +103,11 @@ const SubmitExpense: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const fetchedContact = await getProfile();
-      const fetchedDepartments = await getDepartments();
-      setDepartments(fetchedDepartments);
-        if (fetchedContact) {
-            setPreferredDepartments(fetchedContact.departments);
-            setSelectedDepartment(fetchedContact.departments[0].id.toString());
-        }
+      setDepartments(getDepartments());
+      await getProfile();
     })();
-  }, []);
+  }, [user]);
+  
 
   const addAttachment = () => {
     setAttachments([
@@ -95,7 +127,7 @@ const SubmitExpense: React.FC = () => {
   return (
     <View>
         <View style={[{ flexDirection: 'row', paddingTop: 10 }]}>
-        <Text>Contact & Payout details fetched from</Text>
+        <Text>Hi {profile.name}</Text>
         <Link href="/profile" style={{ color: primaryColor, fontWeight: 'bold' }}>
             <Text> Profile</Text>
         </Link>

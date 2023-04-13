@@ -19,7 +19,7 @@ const Banner: React.FC<BannerProps> = ({ isAuthenticated, onLoginPress, style })
   const bannerColor = useThemeColor({}, 'primaryBackground');
   const textColor = useThemeColor({}, 'text');
   const buttonColor = useThemeColor({}, 'primary');
-  const buttonTextColor = useThemeColor({}, 'primaryText');
+  const buttonTextColor = useThemeColor({}, 'text');
 
 
   return (

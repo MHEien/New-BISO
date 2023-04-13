@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useThemeColor, Text } from './Themed';
+import { Text, useThemeColor } from './Themed';
 
 interface GridItem {
   key: string;
@@ -15,12 +15,18 @@ interface GridProps {
 }
 
 const Grid: React.FC<GridProps> = ({ items }) => {
+
+  const backgroundColor = useThemeColor({}, 'background');
+  const primaryColor = useThemeColor({}, 'primaryBackground');
+
   const renderItem = ({ item }: { item: GridItem }) => (
-    <TouchableOpacity style={styles.gridItem} onPress={item.onPress}>
+    <TouchableOpacity style={[styles.gridItem, { backgroundColor: primaryColor }]} onPress={item.onPress}>
       {item.icon}
       <Text style={styles.title}>{item.title}</Text>
     </TouchableOpacity>
   );
+
+
 
   return (
     <FlatList

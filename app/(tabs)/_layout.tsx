@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import { Pressable, useColorScheme } from 'react-native';
 import i18n from '../../constants/localization';
+import { Ionicons } from '@expo/vector-icons';
 
 import Colors from '../../constants/Colors';
 
@@ -27,7 +28,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: i18n.t('home'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -48,7 +49,28 @@ export default function TabLayout() {
         name="services"
         options={{
           title: i18n.t('services'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerRight: () => (
+            <Link href="/settings" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <Ionicons
+                    name="settings-outline"
+                    size={25}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+          tabBarIcon: ({ color }) => <Ionicons name="apps-outline" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="units"
+        options={{
+          title: i18n.t('units'),
+          tabBarIcon: ({ color }) => <Ionicons name="business-outline" color={color} size={24} />,
         }}
       />
     </Tabs>

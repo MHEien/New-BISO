@@ -9,17 +9,18 @@ import { Link } from 'expo-router';
 
 const MyScreen: React.FC = () => {
 
-
+  const backgroundColor = useThemeColor({}, 'background');
+  const primaryColor = useThemeColor({}, 'primary');
   const iconColor = useThemeColor({}, 'iconColor');
-  const expenseIcon = <Ionicons name="ios-wallet" size={24} color={iconColor} />;
-  const electionIcon = <Ionicons name="ios-people" size={24} color={iconColor} />;
-  const profileIcon = <Ionicons name="ios-person" size={24} color={iconColor} />;
-
+  const expenseIcon = <Ionicons name="wallet-outline" size={40} color={iconColor} />;
+  const electionIcon = <Ionicons name="clipboard-outline" size={40} color={iconColor} />;
+  const profileIcon = <Ionicons name="person-outline" size={40} color={iconColor} />;
   //Route translations
   const expensesTranslated = i18n.t('expenses');
   const settingsTranslated = i18n.t('settings');
   const profileTranslated = i18n.t('profile');
-  const moneyIcon = <Ionicons name="ios-wallet" size={24} color={iconColor} />;
+  const eventsTranslated = i18n.t('events');
+
 
   const router = useRouter();
   const navigation = useNavigation();
@@ -34,8 +35,8 @@ const MyScreen: React.FC = () => {
     {
       key: 'item2',
       icon: electionIcon,
-      title: settingsTranslated,
-      onPress: () => console.log('Settings pressed'),
+      title: 'Elections',
+      onPress: () => console.log('Elections pressed'),
     },
     {
       key: 'item3',
@@ -46,12 +47,12 @@ const MyScreen: React.FC = () => {
     {
       key: 'item4',
       icon: profileIcon,
-      title: 'Events',
+      title: eventsTranslated,
       onPress: () => router.push('events'),
     },
     {
       key: 'item5',
-      icon: moneyIcon,
+      icon: expenseIcon,
       title: 'Create Expense',
       onPress: () => router.push('createExpense'),
     },
