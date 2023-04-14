@@ -5,7 +5,8 @@ import {
   FlatList,
   StyleSheet,
   TextInput,
-  Dimensions
+  Dimensions,
+  Switch,
 } from 'react-native';
 import { View, Text, useThemeColor } from '../components/Themed';
 import { SelectorProps } from '../types';
@@ -17,10 +18,11 @@ const Selector: React.FC<SelectorProps> = ({
   data,
   onSelect,
   onClose,
-  selectedItems = [],
   enableSearch = false,
+  enableFavorites = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
   const textColor = useThemeColor({}, 'text');
   const buttonColor = useThemeColor({}, 'primary');
 
@@ -30,6 +32,10 @@ const Selector: React.FC<SelectorProps> = ({
     : false
 );
 
+const toggleFavorites = () => {
+  setFavoritesOnly(!favoritesOnly);
+};
+
 
 
   return (
@@ -37,6 +43,28 @@ const Selector: React.FC<SelectorProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>Select a department</Text>
+          {enableFavorites && (
+  <View style={styles.switchContainer}>
+    <TouchableOpacity
+      style={[
+        styles.switchButton,
+        favoritesOnly ? null : styles.switchActive,
+      ]}
+      onPress={toggleFavorites}
+    >
+      <Text style={styles.switchText}>All</Text>
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={[
+        styles.switchButton,
+        favoritesOnly ? styles.switchActive : null,
+      ]}
+      onPress={toggleFavorites}
+    >
+      <Text style={styles.switchText}>Favorites</Text>
+    </TouchableOpacity>
+  </View>
+)}
           {enableSearch && (
             <TextInput
               style={[styles.searchInput, { width: width, color: textColor }]}
@@ -49,20 +77,20 @@ const Selector: React.FC<SelectorProps> = ({
           <FlatList
             data={filteredData}
             renderItem={({ item }) => {
-              const isSelected = selectedItems?.includes(item.label);
 
               return (
                 <TouchableOpacity
                   style={[
                     styles.listItem,
-                    isSelected ? styles.listItemSelected : null,
                   ]}
-                  onPress={() => onSelect(item)}
+                  onPress={() => {
+                    onSelect(item);
+                    onClose();
+                  }}
                 >
                   <Text
                     style={[
                       styles.listItemText,
-                      isSelected ? styles.listItemSelectedText : null,
                     ]}
                   >
                     {item.label}
@@ -125,7 +153,27 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
   },
-
+  switchContainer: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'blue',
+    width: width - 40,
+    marginBottom: 20,
+  },
+  switchButton: {
+    flex: 1,
+    paddingVertical: 5,
+    alignItems: 'center',
+  },
+  switchActive: {
+    backgroundColor: 'blue',
+  },
+  switchText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  
 });
 
 export default Selector;

@@ -42,6 +42,10 @@ interface Department {
         onClose: () => void;
         selectedItems?: string[]; // Add the selectedItems prop
         enableSearch?: boolean; // Add the enableSearch prop
+        enableFavorites?: boolean; // Add the enableFavorites prop
       }
+
+
+
 
 export { Department, Attachment, UserProfile, SwitchProps, SelectorProps };

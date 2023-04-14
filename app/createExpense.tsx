@@ -13,37 +13,47 @@ import { useAuthentication } from '../hooks/useAuthentication';
 import { db } from '../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { View, Text } from '../components/Themed';
-import { useUserProfile } from '../hooks/useUserProfile';
-import { Department } from '../types';
-
-interface Attachment {
-  description: string;
-  amount: number;
-  date: Date;
-}
+import { getDepartments, useUserProfile } from '../hooks';
+import { Attachment, Department } from '../types';
+import Selector from '../components/Selector';
 
 
-  const getDepartments = (): Department[] => {
-    return [
-      { id: 1, name: 'IT' },
-      { id: 2, name: 'HR' },
-      { id: 3, name: 'Marketing' },
-    ];
-  };
 
 const SubmitExpense: React.FC = () => {
   const { user } = useAuthentication();
   const uid = user?.uid
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [preferredDepartments, setPreferredDepartments] = useState<Department[]>([]);
   const [showAllDepartments, setShowAllDepartments] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [favoriteDepartments, setFavoriteDepartments] = useState<Department[]>([]);
+  const [activeDepartments, setActiveDepartments] = useState<Department[]>([]);
+
   const { profile } = useUserProfile();
   const [withoutProfile, setWithoutProfile] = useState('');
   
-
   const primaryColor = useThemeColor({}, 'primary');
+  
+  React.useEffect(() => {
+    const fetchDepartments = async () => {
+      const departments = await getDepartments();
+      setDepartments(departments);
+    };
+    fetchDepartments();
+  }, []);
+
+  React.useEffect(() => {
+    if (profile && profile.subunits) {
+      setFavoriteDepartments(
+        profile.subunits
+          .map((id) => departments.find((dept) => dept.id === Number(id)))
+          .filter((dept): dept is Department => dept !== undefined)
+      );
+    }
+  }, [profile, departments]);
+  
+  
+  
   
 
   const addAttachment = () => {
@@ -70,29 +80,26 @@ const SubmitExpense: React.FC = () => {
         </Link>
         </View>
       <View style={styles.column}>
-        {preferredDepartments.length === 1 && !showAllDepartments ? (
-          <Text style={styles.departmentText}>Department: {preferredDepartments[0].name}</Text>
+        {favoriteDepartments.length === 1 && !showAllDepartments ? (
+          <Text style={styles.departmentText}>Department: {favoriteDepartments[0].name}</Text>
         ) : (
         <View style={styles.column}>
              <Text>Department:</Text>
-          <Picker
-            selectedValue={selectedDepartment}
-            onValueChange={(itemValue) => setSelectedDepartment(itemValue)}
-            style={{ height: 50, width: 150 }}
-          >
-            {(preferredDepartments.length > 0 && showAllDepartments === false
-              ? preferredDepartments
-              : departments
-            ).map((dept) => (
-              <Picker.Item key={dept.id} label={dept.name} value={dept.id} />
-            ))}
-          </Picker>
+             <Selector
+                visible={showAllDepartments}
+                data={departments.map((department) => ({ id: department.id ? department.id.toString() : '', color: 'blue', label: department.name }))}
+                enableFavorites={true}
+                enableSearch={true}
+                onSelect={(item) => {
+                  setSelectedDepartment(item.id);
+                  setShowAllDepartments(false);
+                }}
+                onClose={() => setShowAllDepartments(false)}
+                selectedItems={favoriteDepartments.map((dept) => dept.id.toString())}
+              />
+              <Button title="Select department" onPress={switchDepartments} />
         </View>
         )}
-        <Switch
-          onValueChange={switchDepartments}
-          value={showAllDepartments}
-        />
         </View>
         <Text>Attachments:</Text>
       {attachments.map((attachment, index) => (

@@ -24,6 +24,7 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
     const [newProfile, setNewProfile] = React.useState<UserProfile | null>(null);
     const [selectedDepartment, setSelectedDepartment] = React.useState('');
     const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
+    const [favoritesOnly, setFavoritesOnly] = React.useState(false);
     const [departments, setDepartments] = React.useState([
         { campus: "", id: 0, name: "" }
     ]);
@@ -94,10 +95,12 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
             data={departments.map((department) => ({ id: department.id ? department.id.toString() : '', color: 'blue', label: department.name }))}
             enableSearch
             onSelect={(item) => {
-              const newTags = [...selectedTags, item.label];
-              setSelectedTags(newTags);
-              setSelectorVisible(false);
+              if (item) {
+                const newTags = [...selectedTags, item.label];
+                setSelectedTags(newTags);
+              }
             }}
+            
             onClose={() => setSelectorVisible(false)}
           />
           <TouchableOpacity
