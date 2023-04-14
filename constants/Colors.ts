@@ -8,7 +8,7 @@ export default {
     primaryBackground: '#fff',
     primary: '#3DA9E0',
     primaryText: '#fff',
-    iconColor: '#fff',
+    iconColor: '#000',
     borderBottomColor: '#e0e0e0',
     tint: tintColorLight,
     tabIconDefault: '#ccc',

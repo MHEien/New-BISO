@@ -1,6 +1,7 @@
 import React, {useRef, useCallback} from 'react';
 import {StyleSheet} from 'react-native';
 import {ExpandableCalendar, AgendaList, CalendarProvider, WeekCalendar} from 'react-native-calendars';
+import axios from 'axios';
 
 
 import { View, useThemeColor, Text } from '../components/Themed';
@@ -12,33 +13,24 @@ interface Props {
 
 const EventsScreen: React.FC<Props> = ({navigation}) => {
     const theme = useThemeColor({}, 'background');
-    const events = [
-        {
-            id: 1,
-            title: 'Event 1',
-            start: '2023-04-14T10:00:00',
-            end: '2023-04-14T12:00:00',
-            color: 'red',
-        },
-        {
-            id: 2,
-            title: 'Event 2',
-            start: '2023-04-14T12:00:00',
-            end: '2023-04-14T13:00:00',
-            color: 'blue',
-        },
-        {
-            id: 3,
-            title: 'Event 3',
-            start: '2023-04-14T13:00:00',
-            end: '2023-04-14T14:00:00',
-            color: 'green',
-        }
-    ];
+    const [events, setEvents] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    const fetchEvents = async () => {
+        const response = await axios.get('https://www.biso.no/wp-json/tribe/events/v1/events');
+        const events = response.data.events;
+        setEvents(events);
+        setIsLoading(false);
+    }
+
+    React.useEffect(() => {
+        fetchEvents();
+    }, []);
+
 
     const todaysDate = new Date().toISOString().split('T')[0];
 
-    const onCalendarToggled = useCallback((calendarOpened) => {
+    const onCalendarToggled = useCallback((calendarOpened: any) => {
         if (calendarOpened) {
            
         }

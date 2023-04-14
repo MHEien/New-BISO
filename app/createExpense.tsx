@@ -16,6 +16,7 @@ import { View, Text } from '../components/Themed';
 import { getDepartments, useUserProfile } from '../hooks';
 import { Attachment, Department } from '../types';
 import Selector from '../components/Selector';
+import Accordion from '../components/Accordion';
 
 
 
@@ -25,14 +26,17 @@ const SubmitExpense: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showAllDepartments, setShowAllDepartments] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [favoriteDepartments, setFavoriteDepartments] = useState<Department[]>([]);
-  const [activeDepartments, setActiveDepartments] = useState<Department[]>([]);
+  const [activeDepartments, setActiveDepartments] = useState<Department[]>(favoriteDepartments);
+  const [allSelected, setAllSelected] = useState(false);
 
   const { profile } = useUserProfile();
   const [withoutProfile, setWithoutProfile] = useState('');
   
   const primaryColor = useThemeColor({}, 'primary');
+  const textColor = useThemeColor({}, 'text');
   
   React.useEffect(() => {
     const fetchDepartments = async () => {
@@ -44,13 +48,13 @@ const SubmitExpense: React.FC = () => {
 
   React.useEffect(() => {
     if (profile && profile.subunits) {
-      setFavoriteDepartments(
-        profile.subunits
-          .map((id) => departments.find((dept) => dept.id === Number(id)))
-          .filter((dept): dept is Department => dept !== undefined)
+      const favDepartments = departments.filter((dept) =>
+        profile.subunits.includes(dept.name)
       );
+      setFavoriteDepartments(favDepartments);
     }
   }, [profile, departments]);
+  
   
   
   
@@ -64,9 +68,14 @@ const SubmitExpense: React.FC = () => {
   };
 
 
-    const switchDepartments = () => {
-    setShowAllDepartments(!showAllDepartments);
-    };
+  const switchDepartments = () => {
+    setAllSelected(!allSelected);
+  };
+  
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
     
 
 
@@ -74,73 +83,90 @@ const SubmitExpense: React.FC = () => {
   return (
     <View>
         <View style={[{ flexDirection: 'row', paddingTop: 10 }]}>
-        <Text>Hi {profile?.firstName} {profile?.lastName}!</Text>
         <Link href="/profile" style={{ color: primaryColor, fontWeight: 'bold' }}>
-            <Text> Profile</Text>
+        <Text>Hi {profile?.firstName}! We have fetched your details from your profile. If you require any changes, please update your profile.</Text>
         </Link>
         </View>
       <View style={styles.column}>
-        {favoriteDepartments.length === 1 && !showAllDepartments ? (
-          <Text style={styles.departmentText}>Department: {favoriteDepartments[0].name}</Text>
-        ) : (
+      {favoriteDepartments.length === 1 && !allSelected ? (
+        <Text style={styles.departmentText}>
+          Department: {favoriteDepartments[0].name}
+        </Text>
+      ) : (
         <View style={styles.column}>
-             <Text>Department:</Text>
-             <Selector
-                visible={showAllDepartments}
-                data={departments.map((department) => ({ id: department.id ? department.id.toString() : '', color: 'blue', label: department.name }))}
-                enableFavorites={true}
-                enableSearch={true}
-                onSelect={(item) => {
-                  setSelectedDepartment(item.id);
-                  setShowAllDepartments(false);
-                }}
-                onClose={() => setShowAllDepartments(false)}
-                selectedItems={favoriteDepartments.map((dept) => dept.id.toString())}
-              />
-              <Button title="Select department" onPress={switchDepartments} />
+          <Text>Department:</Text>
+          <Selector
+            visible={modalOpen}
+            data={(allSelected ? departments : favoriteDepartments).map(
+              (department) => ({
+                id: department.id ? department.id.toString() : '',
+                color: 'blue',
+                label: department.name,
+              })
+            )}
+            enableFavorites={true}
+            enableSearch={true}
+            onSelect={(item) => {
+              setSelectedDepartment(item.id);
+              setShowAllDepartments(false);
+            }}
+            onClose={() => setModalOpen(false)}
+            selectedItems={favoriteDepartments.map((dept) =>
+              dept.id.toString()
+            )}
+          />
+          <TouchableOpacity onPress={openModal}>
+            <Text style={{ color: textColor, fontWeight: 'bold' }}>
+              Select
+            </Text>
+          </TouchableOpacity>
         </View>
         )}
         </View>
-        <Text>Attachments:</Text>
-      {attachments.map((attachment, index) => (
-        <View key={index}>
-          <Text>Attachment {index + 1}:</Text>
-          <TextInput
-            placeholder="Description"
-            value={attachment.description}
-            onChangeText={(text) =>
-              setAttachments([
-                ...attachments.slice(0, index),
-                { ...attachment, description: text },
-                ...attachments.slice(index + 1),
-              ])
-            }
-          />
-          <TextInput
-            placeholder="Amount"
-            value={attachment.amount.toString()}
-            onChangeText={(text) =>
-              setAttachments([
-                ...attachments.slice(0, index),
-                { ...attachment, amount: parseFloat(text) },
-                ...attachments.slice(index + 1),
-              ])
-            }
-          />
-          <TextInput
-            placeholder="Date (yyyy-mm-dd)"
-            value={attachment.date.toISOString().split('T')[0]}
-            onChangeText={(text) =>
-                setAttachments([
-                  ...attachments.slice(0, index),
-                  { ...attachment, date: new Date(text) },
-                  ...attachments.slice(index + 1),
-                ])
-              }
-            />
-          </View>
-        ))}
-        <Button title="Add Attachment" onPress={addAttachment} />
+<Text>Attachments:</Text>
+{attachments.map((attachment, index) => (
+ <Accordion
+ key={index}
+ title={`Attachment ${index + 1}`}
+ deleteable={true}
+ onDelete={() => {
+  console.log('Deleted attachment');
+   const updatedAttachments = [...attachments];
+   updatedAttachments.splice(index, 1);
+   setAttachments(updatedAttachments);
+  }}
+  content={
+    <View>
+        <TextInput
+          placeholder="Amount"
+          style={{ color: textColor }}
+          value={attachment.amount.toString()}
+          onChangeText={(text) =>
+            setAttachments([
+              ...attachments.slice(0, index),
+              { ...attachment, amount: parseFloat(text) },
+              ...attachments.slice(index + 1),
+            ])
+          }
+        />
+        <TextInput
+          placeholder="Date (yyyy-mm-dd)"
+          style={{ color: textColor }}
+          value={attachment.date.toISOString().split('T')[0]}
+          onChangeText={(text) =>
+            setAttachments([
+              ...attachments.slice(0, index),
+              { ...attachment, date: new Date(text) },
+              ...attachments.slice(index + 1),
+            ])
+          }
+        />
+      </View>
+    }
+  />
+))}
+<Button title="Add Attachment" onPress={addAttachment} />
+
         <Button
           title="Submit Expense"
           onPress={() => {

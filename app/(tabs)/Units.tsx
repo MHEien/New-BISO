@@ -4,6 +4,23 @@ import EditScreenInfo from '../../components/EditScreenInfo';
 import { Text, View } from '../../components/Themed';
 
 export default function TabOneScreen() {
+
+
+  const fetchSubunits = async () => {
+    try {
+      // Replace 'your-site.com' with your actual WordPress site URL.
+      const response = await fetch('https://your-site.com/wp-json/acf/v3/subunits');
+      const data = await response.json();
+  
+      // Process the fetched data as needed.
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching subunits:', error);
+    }
+  };
+  
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Subunits</Text>

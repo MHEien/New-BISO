@@ -1,3 +1,5 @@
+import { ViewStyle } from "react-native/types";
+
 interface Department {
     id: number;
     name: string;
@@ -45,7 +47,38 @@ interface Department {
         enableFavorites?: boolean; // Add the enableFavorites prop
       }
 
+      interface ProgressBarData {
+        label: string;
+        value: number;
+        maxValue: number;
+      }
+      
+      interface ProgressBarProps {
+        header?: string;
+        data: ProgressBarData[];
+        style?: ViewStyle;
+        valueLabel?: string;
+      }
+
+interface NewsPost {
+  title: string;
+  subtitle: string;
+  department: string;
+  date: string;
+  departmentLogo: string;
+  image: string;
+  isFeatured?: boolean; // Add the isFeatured property
+}
+
+interface NewsListProps {
+  newsPosts: NewsPost[];
+}
+
+interface SUbunit {
+  id: number;
+  name: string;
+  campus: string;
+}
 
 
-
-export { Department, Attachment, UserProfile, SwitchProps, SelectorProps };
+export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps };

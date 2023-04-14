@@ -30,6 +30,7 @@ export default function Home() {
       department: "Department",
       date: "Date",
       image: "https://picsum.photos/200/300",
+      isFeatured: true,
     },
     {
       departmentLogo: "https://picsum.photos/200/300",

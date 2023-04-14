@@ -18,6 +18,7 @@ const screenWidth = Dimensions.get('window').width;
 
 const Profile: React.FC = () => {
 const icon = <IonIcons name="information-circle-outline" size={24} color={useThemeColor({}, 'iconColor')} />;
+const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     
     const { user } = useAuthentication();
     const { profile, updateUserProfile } = useUserProfile();
@@ -51,7 +52,7 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
     if (!user) return null;
 
     const addressDetails = (
-        <View>
+        <View style={{ backgroundColor: primaryBackgroundColor }}>
             <TextInput label="Address" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, address: value })} value={newProfile?.address} />
             <TextInput label="Postal code" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, zip: value })} value={newProfile?.zip} />
             <TextInput label="City" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, city: value })} value={newProfile?.city} />
@@ -145,14 +146,14 @@ const icon = <IonIcons name="information-circle-outline" size={24} color={useThe
         content={departmentDetails}
       />
     <Button
-        title="Save"
-        onPress={() => {
-            if (newProfile) {
-                updateUserProfile(newProfile);
-            }
-
-        }}
-    />
+  title="Save"
+  onPress={() => {
+    if (newProfile) {
+      const updatedProfile = { ...newProfile, subunits: selectedTags };
+      updateUserProfile(updatedProfile);
+    }
+  }}
+/>
     </View>
   );
 };
