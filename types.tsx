@@ -74,11 +74,41 @@ interface NewsListProps {
   newsPosts: NewsPost[];
 }
 
-interface SUbunit {
+interface Subunit {
   id: number;
   name: string;
   campus: string;
 }
 
+//Expense
+interface Expense {
+  id: string;
+  docid: string;
+  address: string;
+  attachments: Attachment[];
+  bankAccountNumber: string;
+  campus: string;
+  city: string;
+  date: Date;
+  department: Department;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  invoiceId: string;
+  outstanding: boolean;
+  postalCode: string;
+  prepayment: string;
+  prepaymentAmount: string;
+  purpose: string;
+  total: string;
+  uid: string;
+}
 
-export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps };
+interface ReimbursementListItemProps {
+  item: any;
+  onPress: () => void;
+}
+
+
+export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, ReimbursementListItemProps };

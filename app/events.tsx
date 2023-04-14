@@ -13,7 +13,21 @@ interface Props {
 
 const EventsScreen: React.FC<Props> = ({navigation}) => {
     const theme = useThemeColor({}, 'background');
-    const [events, setEvents] = React.useState([]);
+    const [events, setEvents] = React.useState([
+        {
+            "id": 0,
+            start_date_details: {
+                year: 2020,
+                month: 10,
+                day: 1
+            },
+            venue: {
+                venue: "BISO"
+            },
+            title: "Loading...",
+            numTickets: 0
+        }
+    ]);
     const [isLoading, setIsLoading] = React.useState(true);
 
     const fetchEvents = async () => {
@@ -28,6 +42,8 @@ const EventsScreen: React.FC<Props> = ({navigation}) => {
     }, []);
 
 
+
+    
     const todaysDate = new Date().toISOString().split('T')[0];
 
     const onCalendarToggled = useCallback((calendarOpened: any) => {
@@ -50,14 +66,20 @@ const EventsScreen: React.FC<Props> = ({navigation}) => {
                 todayBottomMargin={16}
             >
                 <ExpandableCalendar
-                style={styles.calendar}
-                markedDates={{
-                    [events[0].start]: {selected: true, disableTouchEvent: true, selectedDotColor: 'orange'},
-                    [events[1].start]: {marked: true, dotColor: events[1].color},
-                    [events[2].start]: {marked: true, dotColor: events[2].color}
-                }}
-                theme={{todayButtonTextColor: '#6d925b'}}
-                />
+  style={styles.calendar}
+  markedDates={
+    events.reduce((markedDates, event) => {
+      const date = event.start_date_details.date;
+      if (!markedDates[date]) {
+        markedDates[date] = { dots: [] };
+      }
+      markedDates[date].dots.push({ key: event.id, color: 'blue' });
+      return markedDates;
+    }, {})
+  }
+  theme={{ todayButtonTextColor: '#6d925b' }}
+/>
+
                 <AgendaList
                     sections={[]}
                     extraData={events}

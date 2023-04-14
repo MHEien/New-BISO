@@ -46,7 +46,7 @@ const MyScreen: React.FC = () => {
       key: 'expenses',
       icon: expenseIcon,
       title: expensesTranslated,
-      onPress: () => console.log('Home pressed'),
+      onPress: () => router.push('expenses'),
     },
     {
       key: 'item2',
@@ -83,8 +83,8 @@ const MyScreen: React.FC = () => {
         padding: 10, 
         borderRadius: 10, 
         margin: 10 }} 
-      header="Avaliable seats" 
-      valueLabel='seats available' />
+      header={i18n.t('seats_available')}
+      valueLabel={i18n.t('seats_available')} />
       <Grid items={items} />
       <Text>{i18n.t('more_services')}</Text>
     </View>
