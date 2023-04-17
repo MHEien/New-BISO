@@ -17,7 +17,7 @@ export default {
   dark: {
     text: '#fff',
     background: '#212121',
-    primary: '#001731',
+    primary: '#3DA9E0',
     primaryBackground: '#303030',
     primaryText: '#212121',
     iconColor: '#fff',

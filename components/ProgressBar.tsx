@@ -8,19 +8,21 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ data, style, header, valueLab
 
     
     const backgroundColor = useThemeColor({}, 'primaryBackground');
+    const primaryColor = useThemeColor({}, 'primary');
+    const textColor = useThemeColor({}, 'text');
   return (
     <View style={[{ backgroundColor }, style, { borderRadius: 10 }]}>
-      {header && <Text style={styles.header}>{header}</Text>}
+      {header && <Text style={[styles.header, { color: textColor }]}>{header}</Text>}
       {data.map((item, index) => {
         const progressPercentage = (item.value / item.maxValue) * 100;
 
         return (
           <View key={index} style={styles.itemContainer}>
-            <Text style={styles.label}>{item.label}</Text>
+            <Text style={[styles.label, { color: textColor }]}>{item.label}</Text>
             <View style={styles.progressBackground}>
-              <View style={[styles.progressBar, { width: `${progressPercentage}%` }]} />
+              <View style={[styles.progressBar, { width: `${progressPercentage}%`, backgroundColor: primaryColor }]} />
             </View>
-            <Text style={styles.valueText}>
+            <Text style={[styles.valueText, { color: textColor }]}>
               {item.value}/{item.maxValue} {valueLabel}
             </Text>
           </View>
@@ -48,7 +50,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   progressBar: {
-    backgroundColor: '#3F51B5',
     borderRadius: 5,
     height: 10,
   },

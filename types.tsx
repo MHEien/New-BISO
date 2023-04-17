@@ -1,4 +1,4 @@
-import { ViewStyle } from "react-native/types";
+import { StyleProp, ViewStyle } from "react-native/types";
 
 interface Department {
     id: number;
@@ -72,6 +72,7 @@ interface NewsPost {
 
 interface NewsListProps {
   newsPosts: NewsPost[];
+  onBannerVisibilityChange: (isVisible: boolean) => void;
 }
 
 interface Subunit {
@@ -110,5 +111,13 @@ interface ReimbursementListItemProps {
   onPress: () => void;
 }
 
+interface BannerProps {
+  isAuthenticated: boolean;
+  onLoginPress: () => void;
+  style?: StyleProp<ViewStyle>;
+}
 
-export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, ReimbursementListItemProps };
+
+
+
+export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, ReimbursementListItemProps, BannerProps };

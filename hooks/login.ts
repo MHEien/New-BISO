@@ -1,5 +1,5 @@
 import React from 'react';
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
@@ -25,4 +25,7 @@ const register = async (email: string, password: string, firstname: string, last
     return user;
 };
 
-export { login, register };
+const logOut = async () => {
+    return signOut(auth);
+};
+export { login, register, logOut };

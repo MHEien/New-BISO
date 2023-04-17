@@ -24,28 +24,7 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: i18n.t('home'),
-          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <Tabs.Screen
+              <Tabs.Screen
         name="services"
         options={{
           title: i18n.t('services'),
@@ -64,6 +43,13 @@ export default function TabLayout() {
             </Link>
           ),
           tabBarIcon: ({ color }) => <Ionicons name="apps-outline" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: i18n.t('home'),
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen

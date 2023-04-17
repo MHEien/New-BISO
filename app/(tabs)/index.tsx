@@ -1,15 +1,16 @@
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { Text, View } from '../../components/Themed';
 import Banner from '../../components/Banner';
 import NewsList from '../../components/NewsList';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { Link } from 'expo-router';
+import { useState } from 'react';
 
 export default function Home() {
   
   const { user } = useAuthentication();
   const isAuthenticated = user ? true : false;
-
+  const [bannerVisible, setBannerVisible] = useState(true);
   //Keeping this state while under development.
   //const isAuthenticated = false;
 
@@ -20,7 +21,7 @@ export default function Home() {
       title: "Title",
       subtitle: "This is the title of a newsworthy post",
       department: "Department",
-      date: "Date",
+      date: "20.01.2023",
       image: "https://picsum.photos/200/300",
     },
     {
@@ -28,7 +29,7 @@ export default function Home() {
       title: "Title",
       subtitle: "Subtitle",
       department: "Department",
-      date: "Date",
+      date: "22.02.2023",
       image: "https://picsum.photos/200/300",
       isFeatured: true,
     },
@@ -37,7 +38,7 @@ export default function Home() {
       title: "Title",
       subtitle: "Subtitle",
       department: "Department",
-      date: "Date",
+      date: "18.04.2023",
       image: "https://picsum.photos/200/300",
     }
   ]
@@ -48,12 +49,11 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-        <Banner isAuthenticated={isAuthenticated} onLoginPress={onLoginPress} />
-      <View style={styles.contentContainer}>
-           <NewsList newsPosts={newsPosts} />
-      </View>
+      {bannerVisible && <Banner isAuthenticated={isAuthenticated} onLoginPress={onLoginPress} />}
+        <NewsList newsPosts={newsPosts} onBannerVisibilityChange={setBannerVisible} />
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({
@@ -62,19 +62,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  topContainer: {
+  scrollView: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: '100%',
   },
   contentContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 10,
-  },
-  title: {
-
   },
   separator: {
     marginVertical: 30,

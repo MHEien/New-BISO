@@ -10,6 +10,7 @@ import ProgressBar from '../../components/ProgressBar';
 
 const MyScreen: React.FC = () => {
   const iconColor = useThemeColor({}, 'iconColor');
+  const primaryColor = useThemeColor({}, 'primary');
   const expenseIcon = <Ionicons name="wallet-outline" size={40} color={iconColor} />;
   const electionIcon = <Ionicons name="clipboard-outline" size={40} color={iconColor} />;
   const profileIcon = <Ionicons name="person-outline" size={40} color={iconColor} />;

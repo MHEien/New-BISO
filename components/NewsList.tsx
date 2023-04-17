@@ -36,7 +36,9 @@ const NewsList: React.FC<NewsListProps> = ({ newsPosts }) => {
           </View>
         )}
       </View>
+      <View style={{ height: 200 }}>
       <Image source={{ uri: item.image }} style={styles.postImage} />
+      </View>
       <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
       <Text style={[styles.subtitle, { color: textColor }]}>{item.subtitle}</Text>
     </View>
@@ -54,13 +56,15 @@ return (
 const styles = StyleSheet.create({
   newsPostContainer: {
     marginBottom: 15,
-    padding: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
     width: screenWidth,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+    paddingHorizontal: 10,
   },
   departmentLogo: {
     width: 40,
@@ -91,19 +95,24 @@ const styles = StyleSheet.create({
     color: 'gray',
   },
   postImage: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'cover',
+    width: screenWidth,
+    height: 220, // Increased height from 200 to 220
+    resizeMode: 'stretch',
     marginBottom: 10,
-    borderRadius: 5,
   },
   title: {
     fontWeight: 'bold',
     fontSize: 16,
+    paddingHorizontal: 10,
+    marginTop: 25,
   },
   subtitle: {
     fontSize: 14,
+    paddingHorizontal: 10,
+    marginTop: 3,
   },
 });
+
+
 
 export default NewsList;

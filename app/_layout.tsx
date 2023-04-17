@@ -1,12 +1,16 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { Link, SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { Pressable, useColorScheme } from 'react-native';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import i18n from '../constants/localization';
 import { usePathname } from 'expo-router';
+import Colors from '../constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { logOut } from '../hooks/login';
+
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -51,9 +55,30 @@ function RootLayoutNav() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen
+        name="profile"
+        options={{
+          title: i18n.t('profile'),
+          headerRight: () => (
+            <Link href="/home" onPress={logOut} asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <Ionicons
+                    name="log-out-outline"
+                    size={25}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
         </Stack>
         </LanguageProvider>
       </ThemeProvider>
     </>
   );
 }
+

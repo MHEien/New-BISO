@@ -10,6 +10,7 @@ import { Link } from 'expo-router';
 import { useThemeColor } from '../components/Themed';
 import { useNavigation } from 'expo-router';
 
+
 export default function Login() {
     const { user } = useAuthentication();
     const [email, setEmail] = useState('');
