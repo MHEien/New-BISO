@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, View } from '../components/Themed';
+import { Text, View, useThemeColor } from '../components/Themed';
 import { useAuthentication } from '../hooks/useAuthentication';
 import { ElectionProps } from '../types';
 import { getElections } from '../hooks/electionHooks';
@@ -14,6 +14,7 @@ export default function Elections() {
   const uid = user?.uid;
   const isAuthenticated = user ? true : false;
   const [elections, setElections] = useState<ElectionProps[]>([]);
+
 
   const router = useRouter();
 
@@ -32,7 +33,7 @@ export default function Elections() {
   if (!isAuthenticated && !email) {
     return (
       <View style={styles.container}>
-        <Text>Join election by typing in the code below</Text>
+        <Text>Join election by typing in the 5 code below</Text>
         <JoinElection />
         <Text>
           By signing in or creating an account, you will be able to see
@@ -45,7 +46,7 @@ export default function Elections() {
   if (elections.length === 0) {
     return (
       <View style={styles.container}>
-        <Text>Join election by typing in the code below</Text>
+        <Text>Join election by typing in the 5 code below</Text>
         <JoinElection />
         <Text>No elections found</Text>
       </View>
@@ -75,6 +76,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
 });
