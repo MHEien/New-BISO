@@ -53,7 +53,7 @@ const MyScreen: React.FC = () => {
       key: 'item2',
       icon: electionIcon,
       title: 'Elections',
-      onPress: () => console.log('Elections pressed'),
+      onPress: () => router.push('elections'),
     },
     {
       key: 'item3',

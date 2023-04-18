@@ -117,7 +117,50 @@ interface BannerProps {
   style?: StyleProp<ViewStyle>;
 }
 
+type Candidate = {
+  id: string;
+  name: string;
+};
+
+
+type Position = {
+  id: string;
+  name: string;
+  candidates: Candidate[];
+  status: string;
+  isStatuteChange?: boolean;
+};
+
+type Vote = {
+  id: string;
+  candidate: string;
+  voterKey: string;
+  election: string;
+  position: string;
+};
+
+
+interface ElectionProps { 
+  id: string;
+  electionCode: string;
+  name: string;
+  description: string;
+  date: Date;
+  positions: Position[];
+  status: string;
+  voterKeyRequired: string;
+}
+
+interface ActiveVotingSession {
+  id?: string;
+  positions: Position[];
+  status?: string;
+  election: string;
+  voterKey: string;
+}
 
 
 
-export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, ReimbursementListItemProps, BannerProps };
+
+
+export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, ReimbursementListItemProps, BannerProps, Candidate, Position, ElectionProps, ActiveVotingSession, Vote };

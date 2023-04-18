@@ -22,7 +22,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "googleServicesFile": "./google-services.json",
+      "package": "com.biso.fs"
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +38,11 @@
       "expo-build-properties",
       "expo-localization",
       "expo-image-picker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a7571205-e0fd-41c7-bd12-834171394ac5"
+      }
+    }
   }
 }

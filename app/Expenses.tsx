@@ -12,6 +12,7 @@ import ReimbursementListItem from '../components/ReimbursementListItem';
 import { query, collectionGroup, where, getDocs, DocumentData } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthentication } from '../hooks/useAuthentication';
+import { getExpenses } from '../hooks/getExpenses';
 
 const Expenses = () => {
   const iconColor = useThemeColor({}, 'iconColor');
@@ -28,6 +29,14 @@ const Expenses = () => {
   const router = useRouter();
   const navigation = useNavigation();
   const [expenses, setExpenses] = useState<Expense[]>([]);
+
+  useEffect(() => {
+    getExpenses().then((expenses) => {
+      setExpenses(expenses);
+    }
+    );
+  }, []);
+
   
 
 
