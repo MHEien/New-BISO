@@ -72,7 +72,7 @@ const Services: React.FC = () => {
       icon: expenseIcon,
       title: 'Create Expense',
       onPress: () => router.push('createExpense'),
-    },
+    }
   ];
 
   return (

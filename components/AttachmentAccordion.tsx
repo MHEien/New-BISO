@@ -23,7 +23,7 @@ const AttachmentAccordion: React.FC<{
   useEffect(() => {
     Animated.timing(slideAnim, {
       toValue: 0,
-      duration: 500,
+      duration: 250,
       useNativeDriver: true,
     }).start();
   }, []);

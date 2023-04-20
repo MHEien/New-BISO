@@ -19,7 +19,6 @@ export default function Login() {
 
     const linkTextColor = useThemeColor({}, 'text');
 
-
     
     useEffect(() => {
         if (user) {

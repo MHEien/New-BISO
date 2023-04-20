@@ -37,7 +37,8 @@
       "expo-build-properties",
       "expo-localization",
       "expo-image-picker",
-      "expo-notifications"
+      "expo-notifications",
+      "react-native-vision-camera"
     ],
     "extra": {
       "eas": {

@@ -105,13 +105,17 @@ const CreateExpenseScreen: React.FC = () => {
   }, [expenseDetails.attachments]);
   
   
+  
   const handleSubmit = async () => {
-    const purpose = await generatePurpose(descriptionStringified);
+
+const attachmentsArray = expenseDetails.attachments;
+
+    const purpose = await generatePurpose(attachmentsArray);
     const invoiceId = await getNextInvoiceId();
     setExpenseDetails({
       ...expenseDetails,
       invoiceId,
-      purpose,
+      purpose: purpose,
     });
     console.log(expenseDetails);
     createExpense(expenseDetails);
@@ -133,6 +137,7 @@ return (
         <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handlePayoutDetailsPress}>
           <Text style={[styles.fieldText, { color: textColor }]}>Payout details fetched from profile.</Text>
         </TouchableOpacity>
+        <Text>Click one of the above if you have not set a profile yet.</Text>
       </View>
       <View style={{ marginBottom: 16, flex: 1 }}>
         <View style={styles.row}>
