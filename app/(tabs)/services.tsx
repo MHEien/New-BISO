@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { Link } from 'expo-router';
 import ProgressBar from '../../components/ProgressBar';
 
-const MyScreen: React.FC = () => {
+const Services: React.FC = () => {
   const iconColor = useThemeColor({}, 'iconColor');
   const primaryColor = useThemeColor({}, 'primary');
   const expenseIcon = <Ionicons name="wallet-outline" size={40} color={iconColor} />;
@@ -100,4 +100,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyScreen;
+export default Services;

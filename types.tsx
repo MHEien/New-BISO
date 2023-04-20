@@ -6,12 +6,6 @@ interface Department {
     campus: string;
   }
 
-    interface Attachment {
-        description: string;
-        amount: number;
-        date: Date;
-    }
-
     interface UserProfile {
         firstName?: string;
         lastName?: string;
@@ -24,6 +18,8 @@ interface Department {
         bankType?: number;
         bic?: string;
         subunits?: string[];
+        expenseDepartment?: string;
+        campus?: string;
         // Add other fields as needed
       }
       
@@ -81,29 +77,40 @@ interface Subunit {
   campus: string;
 }
 
+interface Attachment {
+  id?: string;
+  description: string;
+  amount: string;
+  date: string;
+}
+
 //Expense
 interface Expense {
   id: string;
-  docid: string;
+  docid?: string;
   address: string;
   attachments: Attachment[];
   bankAccountNumber: string;
   campus: string;
   city: string;
   date: Date;
-  department: Department;
+  department: string;
   email: string;
   firstName: string;
   lastName: string;
   phone: string;
   invoiceId: string;
-  outstanding: boolean;
-  postalCode: string;
-  prepayment: string;
-  prepaymentAmount: string;
+  outstanding: number;
+  zip: string;
+  prepayment: boolean;
+  prepaymentAmount?: string;
   purpose: string;
-  total: string;
+  totalAmount: number;
   uid: string;
+}
+
+interface Expenses {
+  Expenses: Expense[];
 }
 
 interface ReimbursementListItemProps {
@@ -163,4 +170,4 @@ interface ActiveVotingSession {
 
 
 
-export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, ReimbursementListItemProps, BannerProps, Candidate, Position, ElectionProps, ActiveVotingSession, Vote };
+export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, Expenses, ReimbursementListItemProps, BannerProps, Candidate, Position, ElectionProps, ActiveVotingSession, Vote };

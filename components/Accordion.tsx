@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from './Themed';
+import { View as DefaultView } from 'react-native';
 import { useThemeColor } from './Themed';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -39,6 +40,7 @@ const Accordion: React.FC<AccordionProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const iconColor = useThemeColor({}, 'text');
   const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
+  const primaryColor = useThemeColor({}, 'primary');
   const toggleAccordion = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsExpanded(!isExpanded);
@@ -72,14 +74,20 @@ const Accordion: React.FC<AccordionProps> = ({
        visible={showDeleteModal}
        onRequestClose={() => setShowDeleteModal(false)}
      >
-       <View style={styles.modalView}>
-         <Text>Are you sure you want to delete this attachment?</Text>
+       <View style={[styles.modalView, { backgroundColor: primaryBackgroundColor }]}>
+         <Text style={styles.modalTitle}>Are you sure you want to delete this attachment?</Text>
+         <DefaultView style={styles.modalButtons}>
          <TouchableOpacity onPress={handleDelete}>
-           <Text style={styles.modalText}>Yes</Text>
+           <Text style={[styles.modalText, { color: primaryColor }]}>
+            Yes
+            </Text>
          </TouchableOpacity>
          <TouchableOpacity onPress={() => setShowDeleteModal(false)}>
-           <Text style={styles.modalText}>No</Text>
+           <Text style={[styles.modalText, { color: primaryColor }]}>
+            No
+            </Text>
          </TouchableOpacity>
+         </DefaultView>
        </View>
      </Modal>
       )}
@@ -126,8 +134,12 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   modalView: {
-    margin: 20,
-    backgroundColor: 'white',
+    position: 'absolute',
+    bottom: 20, // Customize the distance from the bottom of the screen
+    left: 20,
+    right: 20,
+    opacity: 1,
+    height: 200,
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
@@ -143,7 +155,19 @@ const styles = StyleSheet.create({
   modalText: {
     color: 'blue',
     fontWeight: 'bold',
+    fontSize: 25,
     textAlign: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,
   },
 });
 

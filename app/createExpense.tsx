@@ -1,194 +1,235 @@
-import React, { useState, useEffect } from 'react';
-import {
-  TextInput,
-  Button,
-  TouchableOpacity,
-  StyleSheet,
-  Switch,
-} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { Link } from 'expo-router';
-import { useThemeColor } from '../components/Themed';
-import { useAuthentication } from '../hooks/useAuthentication';
-import { db } from '../config/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { View, Text } from '../components/Themed';
-import { getDepartments, useUserProfile } from '../hooks';
-import { Attachment, Department } from '../types';
-import Selector from '../components/Selector';
+import React, { useEffect, useState } from 'react';
+import { View, TouchableOpacity, StyleSheet, FlatList, Button, KeyboardAvoidingView, ScrollView, Platform, } from 'react-native';
+import { useThemeColor, Text } from '../components/Themed';
+import { useRouter } from 'expo-router';
+import { useAuthentication } from '../hooks';
+import { Expense, Attachment, Subunit } from '../types';
 import Accordion from '../components/Accordion';
+import TextInput from '../components/TextInput';
+import IonIcons from '@expo/vector-icons/Ionicons';
+import { getNextInvoiceId } from '../hooks/getInvoiceId';
+import generatePurpose from '../hooks/getPurpose';
+import AttachmentAccordion from '../components/AttachmentAccordion';
 
+const CreateExpenseScreen: React.FC = () => {
+  const router = useRouter();
+  const { user, profile, createExpense } = useAuthentication();
+  const emptyExpense: Expense = {
+    uid: user?.uid || '',
+    id: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    zip: '',
+    date: new Date(),
+    invoiceId: '',
+    outstanding: 0,
+    prepayment: false,
+    purpose: '',
+    bankAccountNumber: '',
+    campus: '',
+    department: '',
+    totalAmount: 0,
+    attachments: [] as Attachment[],
+  };
 
+  const [expenseDetails, setExpenseDetails] = useState<Expense>(emptyExpense);
+  const [favoriteUnits, setFavoriteUnits] = useState<Subunit[]>([]);
+  const [descriptionStringified, setDescriptionStringified] = useState<string>('');
 
-const SubmitExpense: React.FC = () => {
-  const { user } = useAuthentication();
-  const uid = user?.uid
-  const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [showAllDepartments, setShowAllDepartments] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [favoriteDepartments, setFavoriteDepartments] = useState<Department[]>([]);
-  const [activeDepartments, setActiveDepartments] = useState<Department[]>(favoriteDepartments);
-  const [allSelected, setAllSelected] = useState(false);
+  const handleContactDetailsPress = () => {
+    router.push('profile');
+  };
 
-  const { profile } = useUserProfile();
-  const [withoutProfile, setWithoutProfile] = useState('');
-  
-  const primaryColor = useThemeColor({}, 'primary');
+  const handlePayoutDetailsPress = () => {
+    router.push('profile');
+  };
+
+  const backgroundColor = useThemeColor({}, 'background');
+  const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
   const textColor = useThemeColor({}, 'text');
-  
-  React.useEffect(() => {
-    const fetchDepartments = async () => {
-      const departments = await getDepartments();
-      setDepartments(departments);
-    };
-    fetchDepartments();
-  }, []);
 
-  React.useEffect(() => {
-    if (profile && profile.subunits) {
-      const favDepartments = departments.filter((dept) =>
-        profile.subunits.includes(dept.name)
-      );
-      setFavoriteDepartments(favDepartments);
+  //Initialize profile values or empty data.
+  useEffect(() => {
+    if (profile) {
+      setExpenseDetails({
+        ...expenseDetails,
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        address: profile.address || '',
+        city: profile.city || '',
+        zip: profile.zip || '',
+        bankAccountNumber: profile.bankAccount || '',
+        campus: profile.campus || '',
+        department: profile.expenseDepartment || '',
+        attachments: [] as Attachment[],
+        invoiceId: '',
+      });
     }
-  }, [profile, departments]);
-  
-  
-  
-  
-  
+  }, [profile]);
 
-  const addAttachment = () => {
-    setAttachments([
-      ...attachments,
-      { description: '', amount: 0, date: new Date() },
-    ]);
+  //Calculate attachment amounts to number, and calculate total amount
+  useEffect(() => {
+    let totalAmount = 0;
+    if (expenseDetails.attachments) {
+      expenseDetails.attachments.forEach((attachment) => {
+        if (attachment.amount) {
+          totalAmount += Number(attachment.amount);
+        }
+      });
+    }
+    setExpenseDetails({
+      ...expenseDetails,
+      totalAmount,
+    });
+  }, [expenseDetails.attachments]);
+
+  //Get description from all attachments, and convert to a single string.
+  const stringifyAttachmentDescriptions = (attachments: Attachment[]) => {
+    let purpose = '';
+    attachments.forEach((attachment) => {
+      if (attachment.description) {
+        purpose += attachment.description + ', ';
+      }
+    });
+    setDescriptionStringified(purpose);
+  };
+
+  useEffect(() => {
+    stringifyAttachmentDescriptions(expenseDetails.attachments);
+  }, [expenseDetails.attachments]);
+  
+  
+  const handleSubmit = async () => {
+    const purpose = await generatePurpose(descriptionStringified);
+    const invoiceId = await getNextInvoiceId();
+    setExpenseDetails({
+      ...expenseDetails,
+      invoiceId,
+      purpose,
+    });
+    console.log(expenseDetails);
+    createExpense(expenseDetails);
   };
 
 
-  const switchDepartments = () => {
-    setAllSelected(!allSelected);
-  };
-  
-  const openModal = () => {
-    setModalOpen(true);
-  };
-
-    
-
-
-
-  return (
-    <View>
-        <View style={[{ flexDirection: 'row', paddingTop: 10 }]}>
-        <Link href="/profile" style={{ color: primaryColor, fontWeight: 'bold' }}>
-        <Text>Hi {profile?.firstName}! We have fetched your details from your profile. If you require any changes, please update your profile.</Text>
-        </Link>
-        </View>
-      <View style={styles.column}>
-      {favoriteDepartments.length === 1 && !allSelected ? (
-        <Text style={styles.departmentText}>
-          Department: {favoriteDepartments[0].name}
-        </Text>
-      ) : (
-        <View style={styles.column}>
-          <Text>Department:</Text>
-          <Selector
-            visible={modalOpen}
-            data={(allSelected ? departments : favoriteDepartments).map(
-              (department) => ({
-                id: department.id ? department.id.toString() : '',
-                color: 'blue',
-                label: department.name,
-              })
-            )}
-            enableFavorites={true}
-            enableSearch={true}
-            onSelect={(item) => {
-              setSelectedDepartment(item.id);
-              setShowAllDepartments(false);
+return (
+  <KeyboardAvoidingView
+  style={[styles.container, { backgroundColor }]}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+>
+    <ScrollView>
+      <View>
+        <Text style={[styles.header, { color: textColor }]}>Contact details</Text>
+        <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handleContactDetailsPress}>
+          <Text style={[styles.fieldText, { color: textColor }]}>Contact details fetched from profile.</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handlePayoutDetailsPress}>
+          <Text style={[styles.fieldText, { color: textColor }]}>Payout details fetched from profile.</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{ marginBottom: 16, flex: 1 }}>
+        <View style={styles.row}>
+          <Text style={[styles.header, { color: textColor }]}>Attachments</Text>
+          <IonIcons
+            name="add-circle"
+            size={24}
+            color={textColor}
+            onPress={() => {
+              const newAttachments = [...expenseDetails.attachments, {} as Attachment];
+              setExpenseDetails({
+                ...expenseDetails,
+                attachments: newAttachments,
+              });
             }}
-            onClose={() => setModalOpen(false)}
-            selectedItems={favoriteDepartments.map((dept) =>
-              dept.id.toString()
-            )}
           />
-          <TouchableOpacity onPress={openModal}>
-            <Text style={{ color: textColor, fontWeight: 'bold' }}>
-              Select
-            </Text>
-          </TouchableOpacity>
         </View>
-        )}
-        </View>
-<Text>Attachments:</Text>
-{attachments.map((attachment, index) => (
- <Accordion
- key={index}
- title={`Attachment ${index + 1}`}
- deleteable={true}
- onDelete={() => {
-  console.log('Deleted attachment');
-   const updatedAttachments = [...attachments];
-   updatedAttachments.splice(index, 1);
-   setAttachments(updatedAttachments);
-  }}
-  content={
-    <View>
-        <TextInput
-          placeholder="Amount"
-          style={{ color: textColor }}
-          value={attachment.amount.toString()}
-          onChangeText={(text) =>
-            setAttachments([
-              ...attachments.slice(0, index),
-              { ...attachment, amount: parseFloat(text) },
-              ...attachments.slice(index + 1),
-            ])
-          }
-        />
-        <TextInput
-          placeholder="Date (yyyy-mm-dd)"
-          style={{ color: textColor }}
-          value={attachment.date.toISOString().split('T')[0]}
-          onChangeText={(text) =>
-            setAttachments([
-              ...attachments.slice(0, index),
-              { ...attachment, date: new Date(text) },
-              ...attachments.slice(index + 1),
-            ])
-          }
-        />
-      </View>
-    }
-  />
-))}
-<Button title="Add Attachment" onPress={addAttachment} />
+          <ScrollView>
+          <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+  {expenseDetails.attachments.map((attachment, index) => (
+    <AttachmentAccordion
+      key={attachment.id}
+      item={attachment}
+      index={index}
+      onDelete={() => {
+        const newAttachments = expenseDetails.attachments.filter((_, i) => i !== index);
+        setExpenseDetails({
+          ...expenseDetails,
+          attachments: newAttachments,
+        });
+      }}
+      onDescriptionChange={(text) => {
+        const newAttachments = expenseDetails.attachments;
+        newAttachments[index].description = text;
+        setExpenseDetails({
+          ...expenseDetails,
+          attachments: newAttachments,
+        });
+      }}
+      onDateChange={(text) => {
+        const newAttachments = expenseDetails.attachments;
+        newAttachments[index].date = text;
+        setExpenseDetails({
+          ...expenseDetails,
+          attachments: newAttachments,
+        });
+      }}
+      onAmountChange={(text) => {
+        const newAttachments = expenseDetails.attachments;
+        newAttachments[index].amount = text;
+        setExpenseDetails({
+          ...expenseDetails,
+          attachments: newAttachments,
+        });
+      }}
+    />
+  ))}
+</View>
 
-        <Button
-          title="Submit Expense"
-          onPress={() => {
-            // Add functionality to submit the expense
-            console.log('Submitting expense...');
-          }}
-        />
+          </ScrollView>
       </View>
-    );
-  };
-  
-  const styles = StyleSheet.create({
-    column: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    departmentText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-  });
-  
-  export default SubmitExpense;
-  
+      <Button title="Submit" onPress={() => handleSubmit()} />
+    </ScrollView>
+  </KeyboardAvoidingView>
+);
+};
+
+
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  fieldContainer: {
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 5,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  fieldText: {
+    fontSize: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+});
+
+export default CreateExpenseScreen;

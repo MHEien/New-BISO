@@ -23,32 +23,55 @@ export const unstable_settings = {
   initialRouteName: '(tabs)',
 };
 
+/*Seems to be a bug regarding fetching permissions in Expo SDK 48 for Android. Will need to fix this when I have time, and will disable notifications for now.*/
+/*
+Notifications.setNotificationChannelAsync('default', {
+  name: 'default',
+  importance: Notifications.AndroidImportance.MAX,
+  vibrationPattern: [0, 250, 250, 250],
+  lightColor: '#FF231F7C',
+});
+*/
+/*
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async (notification) => {
+    const senderId = notification.request.content.data.sender_id;
+
+    if (senderId === '633338868564') {
+      return {
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      };
+    } else {
+      // Ignore notifications from other sender_ids
+      return {
+        shouldShowAlert: false,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      };
+    }
+  },
 });
 
-async function checkNotificationPermissions() {
-try {
 
-  const { status } = await Notifications.getPermissionsAsync();
-  if (status !== 'granted') {
-    const { granted } = await Notifications.requestPermissionsAsync();
-    if (!granted) {
-      console.log('Notification permission not granted');
-      return;
-    }
+async function getExpoPushTokenAsync() {
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
   }
-  // Notification permission has been granted
-  console.log('Notification permission granted');
+
+  const token = (await Notifications.getDevicePushTokenAsync()).data;
+  console.log(token);
+  return token;
 }
-catch (error) {
-  console.log(error);
-}
-}
+*/
+
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -80,14 +103,16 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
-  const [expoPushToken, setExpoPushToken] = useState<string | undefined>('');
+  const [devicePushToken, setDevicePushToken] = useState<string | undefined>('');
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const notificationListener = useRef<Notifications.Subscription | null>(null);
   const responseListener = useRef<Notifications.Subscription | null>(null);
 
+  /*
   useEffect(() => {
-    checkNotificationPermissions()
-  }, [])
+    getExpoPushTokenAsync().then((token) => setDevicePushToken(token));
+  }, []);
+*/
 
   return (
     <>
