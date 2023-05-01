@@ -13,6 +13,8 @@ import { setDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useUserProfile, getDepartments } from '../hooks';
 import { Department, UserProfile } from '../types';
+import LanguageSwitcher from '../components/LanguangeSwitcher';
+import i18n from '../constants/localization';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -121,32 +123,32 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     <View style={styles.container}>
       <ProfileImage />
         <Accordion
-        title="Address details"
+        title={i18n.t('address_details')}
         icon={icon}
         content={addressDetails}
         />
         <Accordion
-        title="Contact details"
+        title={i18n.t('contact_details')}
         icon={icon}
         content={contactDetails}
         />
         <Accordion
-        title="Payment details"
+        title={i18n.t('payment_details')}
         icon={icon}
         content={paymentDetails}
         />
       <Accordion
-        title="Login with your BISO account"
+        title={i18n.t('login_biso')}
         icon={icon}
         content={<Text>Login lenke til å knytte profil mot BISO-konto. Dette vil tilgjengeliggjøre visse funksjoner som er i bruk for frivillige, blant annet Elections</Text>}
       />
       <Accordion
-        title="Preferred subunits"
+        title={i18n.t('favorite_units')}
         icon={icon}
         content={departmentDetails}
       />
     <Button
-  title="Save"
+  title={i18n.t('save')}
   onPress={() => {
     if (newProfile) {
       const updatedProfile = { ...newProfile, subunits: selectedTags };
@@ -154,6 +156,7 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     }
   }}
 />
+    <LanguageSwitcher />
     </View>
   );
 };

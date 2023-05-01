@@ -20,6 +20,7 @@ interface Department {
         subunits?: string[];
         expenseDepartment?: string;
         campus?: string;
+        pushToken?: string;
         // Add other fields as needed
       }
       
@@ -82,6 +83,7 @@ interface Attachment {
   description: string;
   amount: string;
   date: string;
+  file: string;
 }
 
 //Expense

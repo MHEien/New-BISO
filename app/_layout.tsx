@@ -1,17 +1,20 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider, NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Link, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, useColorScheme } from 'react-native';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import i18n from '../constants/localization';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import Colors from '../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { logOut } from '../hooks/login';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Linking from 'expo-linking';
+import { useUserProfile } from '../hooks/useUserProfile';
+import { UserProfile } from '../types';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -23,39 +26,44 @@ export const unstable_settings = {
   initialRouteName: '(tabs)',
 };
 
-/*Seems to be a bug regarding fetching permissions in Expo SDK 48 for Android. Will need to fix this when I have time, and will disable notifications for now.*/
-/*
-Notifications.setNotificationChannelAsync('default', {
-  name: 'default',
-  importance: Notifications.AndroidImportance.MAX,
-  vibrationPattern: [0, 250, 250, 250],
-  lightColor: '#FF231F7C',
-});
-*/
-/*
 Notifications.setNotificationHandler({
-  handleNotification: async (notification) => {
-    const senderId = notification.request.content.data.sender_id;
-
-    if (senderId === '633338868564') {
-      return {
-        shouldShowAlert: true,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-      };
-    } else {
-      // Ignore notifications from other sender_ids
-      return {
-        shouldShowAlert: false,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-      };
-    }
-  },
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
 });
 
 
-async function getExpoPushTokenAsync() {
+async function registerForPushNotificationsAsync(profile: UserProfile, updateUserProfile: { (updatedFields: Partial<UserProfile>): Promise<void>; (arg0: { pushToken: string; }): void; }) {
+  let token;
+
+  if (Device.isDevice) {
+    try {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        console.log(status);
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync());
+      console.log(token.data);
+
+      if (!profile.pushToken || profile.pushToken !== token.data) {
+        updateUserProfile({ pushToken: token.data });
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    alert('Must use physical device for Push Notifications');
+  }
 
   if (Platform.OS === 'android') {
     Notifications.setNotificationChannelAsync('default', {
@@ -66,11 +74,13 @@ async function getExpoPushTokenAsync() {
     });
   }
 
-  const token = (await Notifications.getDevicePushTokenAsync()).data;
-  console.log(token);
-  return token;
+  if (!token) {
+    return;
+  }
+  return token.data;
 }
-*/
+
+
 
 
 export default function RootLayout() {
@@ -81,14 +91,10 @@ export default function RootLayout() {
 
   const router = useRouter();
 
-
-
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
-
-  
 
   return (
     <>
@@ -98,27 +104,72 @@ export default function RootLayout() {
   );
 }
 
-
-
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-
-  const [devicePushToken, setDevicePushToken] = useState<string | undefined>('');
+  const [expoPushToken, setExpoPushToken] = useState<string | undefined>('');
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
-  const notificationListener = useRef<Notifications.Subscription | null>(null);
-  const responseListener = useRef<Notifications.Subscription | null>(null);
+  const notificationListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription>();
+  const [locale, setLocale] = useState<string>(i18n.locale);
+const [initialRoute, setInitialRoute] = useState<string | undefined>(undefined);
+const { profile, updateUserProfile } = useUserProfile();
 
-  /*
+const router = useRouter();
+
   useEffect(() => {
-    getExpoPushTokenAsync().then((token) => setDevicePushToken(token));
+    registerForPushNotificationsAsync(profile, updateUserProfile).then(token => setExpoPushToken(token));
+    console.log(expoPushToken);
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+    
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    
+      // Handle the targetRoute from the notification data
+      const targetRoute = response.notification.request.content.data.targetRoute;
+      const targetParams = response.notification.request.content.data.targetParams;
+     if (targetRoute)
+      setTimeout(() => {
+        if (targetParams)
+        router.push({ pathname: targetRoute, params: targetParams });
+        else
+        router.push(targetRoute);
+      }, 0o1);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current!);
+      if (responseListener.current !== undefined) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
   }, []);
-*/
+
+  useEffect(() => {
+    if (locale !== i18n.locale) {
+      i18n.locale = locale;
+    }
+  }, [locale]);
+
+  useEffect(() => {
+    if (profile && expoPushToken) {
+      if (!profile.pushToken) {
+        updateUserProfile({ pushToken: expoPushToken });
+      } else if (profile.pushToken !== expoPushToken) {
+        updateUserProfile({ pushToken: expoPushToken });
+      }
+    }
+  }, [profile, expoPushToken]);
+
+
 
   return (
     <>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <LanguageProvider>
-        <Stack>
+        <LanguageProvider language={locale} setLanguage={setLocale}>
+        <Stack initialRouteName='profile'>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           <Stack.Screen
@@ -147,4 +198,3 @@ function RootLayoutNav() {
     </>
   );
 }
-

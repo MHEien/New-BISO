@@ -1,11 +1,22 @@
 import React from 'react';
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 const login = async (email: string, password: string) => {
-    return signInWithEmailAndPassword(auth, email, password);
-    };
+    await signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
+        const userProfile = await getDoc(doc(db, 'users', userCredential.user.uid));
+
+        if (userProfile.exists()) {
+            if (!userProfile.data().newFeatures) {
+                await updateDoc(doc(db, 'users', userCredential.user.uid), {
+                    newFeatures: true
+                });
+            }
+        }
+    });
+};
+
 
 const register = async (email: string, password: string, firstname: string, lastname: string, phoneNumber: string, bankAccountNumber: string, address: string, city: string, postcode: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -21,6 +32,7 @@ const register = async (email: string, password: string, firstname: string, last
         address,
         city,
         postcode,
+        newFeatures: true
     });
     return user;
 };

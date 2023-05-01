@@ -38,6 +38,11 @@
     "services": "Tjenester",
     "settings": "Innstillinger",
     "welcome_message": "Velkommen til BISO-appen!",
-    "more_services": "Flere tjenester kommer snart!"
+    "more_services": "Flere tjenester kommer snart!",
+    "address_details": "Adresse",
+    "contact_details": "Kontaktinfo",
+    "payment_details": "Betalingsinfo",
+    "login_biso": "Logg inn med BISO",
+    "favorite_units": "Favorittenheter"
   }
   

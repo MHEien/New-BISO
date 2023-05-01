@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, ReactNode } from 'react';
 import {
   TouchableOpacity,
   StyleSheet,
@@ -6,12 +6,16 @@ import {
   Platform,
   UIManager,
   Dimensions,
-  Modal,
+  View as DefaultView,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View } from './Themed';
-import { View as DefaultView } from 'react-native';
 import { useThemeColor } from './Themed';
+import { Attachment } from '../types';
+import TextInput from './TextInput';
+import { Button } from './Button';
+import Modal from './Modal';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -21,9 +25,17 @@ interface AccordionProps {
   title: string;
   subtitle?: string;
   icon?: React.ReactNode;
-  content: React.ReactNode;
+  content?: React.ReactNode;
   deleteable?: boolean;
+  expandable?: boolean;
+  children?: ReactNode;
   onDelete?: () => void;
+  onPress?: () => void;
+  item?: Attachment;
+  index?: number;
+  onDescriptionChange?: (text: string) => void;
+  onDateChange?: (text: string) => void;
+  onAmountChange?: (text: string) => void;
 }
 
 const screenWidth = Dimensions.get('window').width;
@@ -34,16 +46,38 @@ const Accordion: React.FC<AccordionProps> = ({
   icon,
   content,
   deleteable,
+  expandable,
+  children,
   onDelete,
+  onPress,
+  item,
+  index,
+  onDescriptionChange,
+  onDateChange,
+  onAmountChange,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const iconColor = useThemeColor({}, 'text');
   const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
   const primaryColor = useThemeColor({}, 'primary');
+  const slideAnim = useRef(new Animated.Value(300)).current;
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const toggleAccordion = () => {
+    if (expandable) {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsExpanded(!isExpanded);
+    } else {
+      onPress?.();
+    }
   };
 
   const handleDelete = () => {
@@ -51,8 +85,20 @@ const Accordion: React.FC<AccordionProps> = ({
     onDelete?.();
   };
 
+  const renderContent = () => {
+    if (content) return content;
+    return children;
+  };
+  
+
   return (
-    <View style={[styles.container, { backgroundColor: primaryBackgroundColor }]}>
+    <Animated.View
+      style={[
+        styles.container,
+        { backgroundColor: primaryBackgroundColor },
+        item && index !== undefined ? { transform: [{ translateX: slideAnim }] } : {},
+      ]}
+    >
       <TouchableOpacity style={styles.header} onPress={toggleAccordion}>
         {icon}
         <Text style={styles.title}>{title}</Text>
@@ -66,32 +112,19 @@ const Accordion: React.FC<AccordionProps> = ({
           </TouchableOpacity>
         )}
       </TouchableOpacity>
-      {isExpanded && <View style={[styles.contentContainer, { backgroundColor: primaryBackgroundColor }]}>{content}</View>}
-      {deleteable && (
-       <Modal
-       animationType="slide"
-       transparent={true}
-       visible={showDeleteModal}
-       onRequestClose={() => setShowDeleteModal(false)}
-     >
-       <View style={[styles.modalView, { backgroundColor: primaryBackgroundColor }]}>
-         <Text style={styles.modalTitle}>Are you sure you want to delete this attachment?</Text>
-         <DefaultView style={styles.modalButtons}>
-         <TouchableOpacity onPress={handleDelete}>
-           <Text style={[styles.modalText, { color: primaryColor }]}>
-            Yes
-            </Text>
-         </TouchableOpacity>
-         <TouchableOpacity onPress={() => setShowDeleteModal(false)}>
-           <Text style={[styles.modalText, { color: primaryColor }]}>
-            No
-            </Text>
-         </TouchableOpacity>
-         </DefaultView>
-       </View>
-     </Modal>
+      {isExpanded && (
+        <View style={[styles.contentContainer, { backgroundColor: primaryBackgroundColor }]}>{renderContent()}</View>
       )}
-    </View>
+      {deleteable && (
+        <Modal
+          visible={showDeleteModal}
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={handleDelete}
+          title="Are you sure you want to delete the attachment?"
+          onRequestClose={() => setShowDeleteModal(false)}
+        />
+      )}
+    </Animated.View>
   );
 };
 
@@ -168,6 +201,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     marginTop: 20,
+  },
+  inputContainer: {
+    width: '70%',
+  },
+  buttonsContainer: {
+    width: '30%',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  button: {
+    height: 60,
   },
 });
 

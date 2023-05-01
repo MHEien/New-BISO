@@ -9,7 +9,10 @@ import TextInput from '../components/TextInput';
 import IonIcons from '@expo/vector-icons/Ionicons';
 import { getNextInvoiceId } from '../hooks/getInvoiceId';
 import generatePurpose from '../hooks/getPurpose';
-import AttachmentAccordion from '../components/AttachmentAccordion';
+import { Camera, CameraType } from 'expo-camera';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import Modal from '../components/Modal';
+import CameraModal from '../components/CameraModal';
 
 const CreateExpenseScreen: React.FC = () => {
   const router = useRouter();
@@ -39,6 +42,11 @@ const CreateExpenseScreen: React.FC = () => {
   const [expenseDetails, setExpenseDetails] = useState<Expense>(emptyExpense);
   const [favoriteUnits, setFavoriteUnits] = useState<Subunit[]>([]);
   const [descriptionStringified, setDescriptionStringified] = useState<string>('');
+  const [isCameraVisible, setIsCameraVisible] = useState(false);
+  const [type, setType] = useState(CameraType.back);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [cameraModalVisible, setCameraModalVisible] = useState(false);
+
 
   const handleContactDetailsPress = () => {
     router.push('profile');
@@ -122,11 +130,18 @@ const attachmentsArray = expenseDetails.attachments;
   };
 
 
+  const isAttachmentFilled = (attachment: Attachment) => {
+    return !!attachment.description || !!attachment.date || !!attachment.amount;
+  };
+
+  
+
+
 return (
   <KeyboardAvoidingView
   style={[styles.container, { backgroundColor }]}
   behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-  keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
 >
     <ScrollView>
       <View>
@@ -142,26 +157,24 @@ return (
       <View style={{ marginBottom: 16, flex: 1 }}>
         <View style={styles.row}>
           <Text style={[styles.header, { color: textColor }]}>Attachments</Text>
+          <TouchableOpacity  onPress={() => setModalVisible(true)}>
           <IonIcons
             name="add-circle"
             size={24}
             color={textColor}
-            onPress={() => {
-              const newAttachments = [...expenseDetails.attachments, {} as Attachment];
-              setExpenseDetails({
-                ...expenseDetails,
-                attachments: newAttachments,
-              });
-            }}
           />
+          </TouchableOpacity>
         </View>
           <ScrollView>
-          <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
   {expenseDetails.attachments.map((attachment, index) => (
-    <AttachmentAccordion
-      key={attachment.id}
+    <Accordion
+      title={`Attachment ${index + 1}`}
+      key={index}
       item={attachment}
       index={index}
+      deleteable
+      expandable
       onDelete={() => {
         const newAttachments = expenseDetails.attachments.filter((_, i) => i !== index);
         setExpenseDetails({
@@ -169,42 +182,84 @@ return (
           attachments: newAttachments,
         });
       }}
-      onDescriptionChange={(text) => {
-        const newAttachments = expenseDetails.attachments;
-        newAttachments[index].description = text;
-        setExpenseDetails({
-          ...expenseDetails,
-          attachments: newAttachments,
-        });
-      }}
-      onDateChange={(text) => {
-        const newAttachments = expenseDetails.attachments;
-        newAttachments[index].date = text;
-        setExpenseDetails({
-          ...expenseDetails,
-          attachments: newAttachments,
-        });
-      }}
-      onAmountChange={(text) => {
-        const newAttachments = expenseDetails.attachments;
-        newAttachments[index].amount = text;
-        setExpenseDetails({
-          ...expenseDetails,
-          attachments: newAttachments,
-        });
-      }}
-    />
+    >
+      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+        <TextInput
+          style={{ marginBottom: 8 }}
+          label="Description"
+          value={attachment.description}
+          onChangeText={(text) => {
+            const newAttachments = expenseDetails.attachments;
+            newAttachments[index].description = text;
+            setExpenseDetails({
+              ...expenseDetails,
+              attachments: newAttachments,
+            });
+          }}
+        />
+        <TextInput
+          style={{ marginBottom: 8 }}
+          label="Date"
+          value={attachment.date}
+          onChangeText={(text) => {
+            const newAttachments = expenseDetails.attachments;
+            newAttachments[index].date = text;
+            setExpenseDetails({
+              ...expenseDetails,
+              attachments: newAttachments,
+            });
+          }}
+        />
+        <TextInput
+          style={{ marginBottom: 8 }}
+          label="Amount"
+          value={attachment.amount}
+          onChangeText={(text) => {
+            const newAttachments = expenseDetails.attachments;
+            newAttachments[index].amount = text;
+            setExpenseDetails({
+              ...expenseDetails,
+              attachments: newAttachments,
+            });
+          }}
+        />
+      </View>
+    </Accordion>
   ))}
 </View>
-
           </ScrollView>
       </View>
       <Button title="Submit" onPress={() => handleSubmit()} />
     </ScrollView>
+    <Modal
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+      title="Add attachment"
+      options={['Camera', 'Files']}
+      onConfirm={() => setCameraModalVisible(true)}
+      onCancel={() => setModalVisible(false)}
+     />
+     <CameraModal
+      isVisible={cameraModalVisible}
+      onClose={() => setCameraModalVisible(false)}
+      onPictureTaken={(file) => {
+        const newAttachments = expenseDetails.attachments;
+        newAttachments.push({
+          description: '',
+          date: '',
+          amount: '',
+          file,
+        });
+        setExpenseDetails({
+          ...expenseDetails,
+          attachments: newAttachments,
+        });
+        setCameraModalVisible(false);
+      }}
+      />
   </KeyboardAvoidingView>
 );
 };
-
 
 
 

@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "biso",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -26,6 +26,7 @@
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
+      "useNextNotificationsApi": true,
       "googleServicesFile": "./google-services.json",
       "package": "com.biso.fs"
     },
@@ -36,9 +37,7 @@
     "plugins": [
       "expo-build-properties",
       "expo-localization",
-      "expo-image-picker",
-      "expo-notifications",
-      "react-native-vision-camera"
+      "expo-image-picker"
     ],
     "extra": {
       "eas": {
