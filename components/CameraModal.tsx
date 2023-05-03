@@ -4,10 +4,9 @@ import { Button } from './Button';
 import { useState } from 'react';
 import { useThemeColor } from './Themed';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform, UIManager, LayoutAnimation, StyleSheet, TouchableOpacity, Dimensions, Modal } from 'react-native';
+import { Platform, UIManager, LayoutAnimation, StyleSheet, TouchableOpacity, Dimensions, Modal, Text } from 'react-native';
 
 
-const screenWidth = Dimensions.get('window').width;
 
 interface CameraModalProps {
     isVisible: boolean;
@@ -15,12 +14,9 @@ interface CameraModalProps {
     onPictureTaken: (uri: string) => void;
 }
 
-//Fullscreen camera modal. Top right corner is a X button to close the modal.
-//Bottom middle is a round button with a camera icon to take a picture.
-//What happens with the picture is up to the onPictureTaken function.
-const CameraModal: React.FC<CameraModalProps> = ({ isVisible, onClose, onPictureTaken }) => {
-    const [hasPermission, setHasPermission] = useState(false);
+export default function CameraScreen({ isVisible, onClose, onPictureTaken }: CameraModalProps) {
     const [type, setType] = useState(CameraType.back);
+    const [permission, requestPermission] = Camera.useCameraPermissions();
     const [camera, setCamera] = useState<Camera | null>(null);
 
     const backgroundColor = useThemeColor({}, 'background');
@@ -31,14 +27,52 @@ const CameraModal: React.FC<CameraModalProps> = ({ isVisible, onClose, onPicture
         setType(type === CameraType.back ? CameraType.front : CameraType.back);
     };
 
+   if (!permission) {
+        return (
+            <View style={{ flex: 1, backgroundColor: backgroundColor }}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: textColor }}>Camera permission is required</Text>
+                    <TouchableOpacity onPress={requestPermission}>
+                        <View style={{ padding: 20 }}>
+                            <Text style={{ color: textColor }}>Request permission</Text>
+                            </View>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    }
+
+    if (!permission.granted) {
+        return (
+            <View style={{ flex: 1, backgroundColor: backgroundColor }}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: textColor }}>Camera permission is not granted</Text>
+                    <TouchableOpacity onPress={requestPermission}>
+                        <View style={{ padding: 20 }}>
+                            <Text style={{ color: textColor }}>Request permission</Text>
+                            </View>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    }
+
     const handleCameraReady = () => {
-        setHasPermission(true);
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental &&
+                UIManager.setLayoutAnimationEnabledExperimental(true);
+            LayoutAnimation.easeInEaseOut();
+        }
     };
+
+
 
     const handleTakePicture = async () => {
         if (camera) {
             const photo = await camera.takePictureAsync();
             onPictureTaken(photo.uri);
+            console.log(photo.uri);
+            onClose();
         }
     };
 
@@ -67,41 +101,28 @@ const CameraModal: React.FC<CameraModalProps> = ({ isVisible, onClose, onPicture
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     cameraContainer: {
         flex: 1,
         backgroundColor: 'transparent',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
+        flexDirection: 'row',
     },
     cameraButtonContainer: {
-        flex: 1,
-        alignSelf: 'center',
+        position: 'absolute', // Position the container absolutely
+        bottom: 40, // Set the bottom position
+        width: '100%', // Set the width to the full screen
+        justifyContent: 'center',
         alignItems: 'center',
-        justifyContent: 'flex-end',
-        marginBottom: 20,
+        backgroundColor: 'transparent',
     },
     cameraButton: {
-        backgroundColor: 'transparent',
-        borderRadius: 100,
-        borderWidth: 5,
-        borderColor: 'white',
-        padding: 10,
-    },
-    cameraTypeButtonContainer: {
-        flex: 1,
-        alignSelf: 'flex-start',
-        alignItems: 'flex-end',
-        justifyContent: 'flex-start',
-        marginTop: 20,
-        marginRight: 20,
-    },
-    cameraTypeButton: {
-        backgroundColor: 'transparent',
-        borderRadius: 100,
-        borderWidth: 5,
-        borderColor: 'white',
-        padding: 10,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: 'rgba(255,255,255, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
-
-export default CameraModal;

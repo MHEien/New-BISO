@@ -12,7 +12,9 @@ import generatePurpose from '../hooks/getPurpose';
 import { Camera, CameraType } from 'expo-camera';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import Modal from '../components/Modal';
-import CameraModal from '../components/CameraModal';
+import CameraScreen from '../components/CameraModal';
+import MlkitOcr from 'react-native-mlkit-ocr';
+import axios from 'axios';
 
 const CreateExpenseScreen: React.FC = () => {
   const router = useRouter();
@@ -134,8 +136,32 @@ const attachmentsArray = expenseDetails.attachments;
     return !!attachment.description || !!attachment.date || !!attachment.amount;
   };
 
-  
+  //Handle OCR, and POST data to backend, ap
+  const handleOcr = async (image: string) => {
+    const result = await MlkitOcr.detectFromUri(image);
+    const text = result.map((block) => block.text).join('\n');
+    await axios.post('http://192.168.40.245:3000/openai', {
+      text,
+    }).then((response) => {
+      const data = response.data;
+      const attachments = data.attachments;
+      const newAttachments = attachments.map((attachment: any) => {
+        return {
+          ...attachment,
+          date: new Date(attachment.date) || new Date(),
+          description: attachment.description || '',
+          amount: attachment.amount || '',
+        };
+      });
+      setExpenseDetails({
+        ...expenseDetails,
+        attachments: [...expenseDetails.attachments, ...newAttachments],
+      });
+      setCameraModalVisible(false);
+    });
+  };
 
+  
 
 return (
   <KeyboardAvoidingView
@@ -239,24 +265,14 @@ return (
       onConfirm={() => setCameraModalVisible(true)}
       onCancel={() => setModalVisible(false)}
      />
-     <CameraModal
+     <CameraScreen
       isVisible={cameraModalVisible}
       onClose={() => setCameraModalVisible(false)}
-      onPictureTaken={(file) => {
-        const newAttachments = expenseDetails.attachments;
-        newAttachments.push({
-          description: '',
-          date: '',
-          amount: '',
-          file,
-        });
-        setExpenseDetails({
-          ...expenseDetails,
-          attachments: newAttachments,
-        });
+      onPictureTaken={async (image) => {
+        await handleOcr(image);
         setCameraModalVisible(false);
       }}
-      />
+    />
   </KeyboardAvoidingView>
 );
 };

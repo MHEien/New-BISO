@@ -5,7 +5,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useThemeColor, Text } from '../components/Themed';
 import i18n from '../constants/localization';
 import { useRouter, useNavigation } from 'expo-router';
-
 import { Expense } from '../types';
 import { FlatList } from 'react-native-gesture-handler';
 import ReimbursementListItem from '../components/ReimbursementListItem';
@@ -14,7 +13,7 @@ import { db } from '../config/firebase';
 import { useAuthentication } from '../hooks/useAuthentication';
 import { getExpenses } from '../hooks/getExpenses';
 
-const Expenses = () => {
+export default function Expenses () {
   const iconColor = useThemeColor({}, 'iconColor');
   const expenseIcon = <Ionicons name="wallet-outline" size={40} color={iconColor} />;
   const electionIcon = <Ionicons name="clipboard-outline" size={40} color={iconColor} />;
@@ -72,5 +71,3 @@ const styles = StyleSheet.create({
   },
 
 });
-
-export default Expenses;

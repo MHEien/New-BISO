@@ -47,7 +47,7 @@ const Services: React.FC = () => {
       key: 'expenses',
       icon: expenseIcon,
       title: expensesTranslated,
-      onPress: () => router.push('expenses'),
+      onPress: () => router.push('/expenses'),
     },
     {
       key: 'item2',

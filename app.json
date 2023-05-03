@@ -37,7 +37,11 @@
     "plugins": [
       "expo-build-properties",
       "expo-localization",
-      "expo-image-picker"
+      "expo-image-picker",
+      [
+        "./kotlin-version-plugin",
+        "1.6.0"
+      ]
     ],
     "extra": {
       "eas": {
