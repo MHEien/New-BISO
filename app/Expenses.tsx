@@ -42,7 +42,7 @@ export default function Expenses () {
   const renderItem = ({ item }: { item: Expense }) => (
     <ReimbursementListItem
       item={item}
-      onPress={() => navigation.navigate('ExpenseDetails', { item })}
+      onPress={() => router.push({ pathname: '/ExpenseDetails', params: { expense: item } })}
     />
   );
 
