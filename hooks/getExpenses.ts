@@ -4,17 +4,13 @@ import { useAuthentication } from "./useAuthentication";
 import { useState } from "react";
 import { Expense } from "../types";
 
-const getExpenses = async (): Promise<Expense[]> => {
+const getExpenses = async (uid: string): Promise<Expense[]> => {
 
-    const { user } = useAuthentication();
 
-    if (!user) return [];
-
-    const q = query(collectionGroup(db, 'expenses'), where('uid', '==', user.uid));
+    const q = query(collectionGroup(db, 'expenses'), where('uid', '==', uid));
     const querySnapshot = await getDocs(q);
     const expenses: Expense[] = [];
     querySnapshot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
         expenses.push(doc.data() as Expense);
     });
     return expenses;

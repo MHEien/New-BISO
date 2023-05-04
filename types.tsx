@@ -109,6 +109,7 @@ interface Expense {
   purpose: string;
   totalAmount: number;
   uid: string;
+  isApproved: boolean;
 }
 
 interface Expenses {
@@ -118,6 +119,7 @@ interface Expenses {
 interface ReimbursementListItemProps {
   item: any;
   onPress: () => void;
+  isApproved: boolean;
 }
 
 interface BannerProps {

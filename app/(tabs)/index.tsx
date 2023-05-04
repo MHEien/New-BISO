@@ -1,20 +1,23 @@
-import { ScrollView, StyleSheet } from 'react-native';
-import { Text, View } from '../../components/Themed';
+import { StyleSheet } from 'react-native';
+import { View } from '../../components/Themed';
 import Banner from '../../components/Banner';
 import NewsList from '../../components/NewsList';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { Link } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getWPData } from '../../hooks/getWPData';
 
 export default function Home() {
   
   const { user } = useAuthentication();
   const isAuthenticated = user ? true : false;
   const [bannerVisible, setBannerVisible] = useState(true);
-  //Keeping this state while under development.
-  //const isAuthenticated = false;
+  const [news, setNews] = useState([]);
+
+  
 
 
+  //Dummy posts for testing
   const newsPosts = [
     {
       departmentLogo: "https://picsum.photos/200/300",
@@ -46,6 +49,18 @@ export default function Home() {
  const onLoginPress = () => {
     <Link href={'/login'} />
   }
+
+
+  //TODO: Filter data from posts to highlight.
+  useEffect(() => {
+    const fetchData = async () => {
+      const news = await getWPData('https://biso.no/wp-json/wp/v2/posts');
+      setNews(news);
+    };
+    fetchData();
+  }, []);
+
+
 
   return (
     <View style={styles.container}>

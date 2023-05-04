@@ -1,18 +1,17 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider, NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Link, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, useColorScheme } from 'react-native';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import i18n from '../constants/localization';
-import { useRouter, useNavigation } from 'expo-router';
+import { useRouter} from 'expo-router';
 import Colors from '../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { logOut } from '../hooks/login';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import Linking from 'expo-linking';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { UserProfile } from '../types';
 
@@ -169,7 +168,7 @@ const router = useRouter();
     <>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <LanguageProvider language={locale} setLanguage={setLocale}>
-        <Stack initialRouteName='profile'>
+        <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           <Stack.Screen

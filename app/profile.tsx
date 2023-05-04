@@ -126,26 +126,31 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
         title={i18n.t('address_details')}
         icon={icon}
         content={addressDetails}
+        expandable
         />
         <Accordion
         title={i18n.t('contact_details')}
         icon={icon}
         content={contactDetails}
+        expandable
         />
         <Accordion
         title={i18n.t('payment_details')}
         icon={icon}
         content={paymentDetails}
+        expandable
         />
       <Accordion
         title={i18n.t('login_biso')}
         icon={icon}
         content={<Text>Login lenke til å knytte profil mot BISO-konto. Dette vil tilgjengeliggjøre visse funksjoner som er i bruk for frivillige, blant annet Elections</Text>}
+        expandable
       />
       <Accordion
         title={i18n.t('favorite_units')}
         icon={icon}
         content={departmentDetails}
+        expandable
       />
     <Button
   title={i18n.t('save')}

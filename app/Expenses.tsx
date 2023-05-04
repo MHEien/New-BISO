@@ -13,6 +13,7 @@ import { db } from '../config/firebase';
 import { useAuthentication } from '../hooks/useAuthentication';
 import { getExpenses } from '../hooks/getExpenses';
 
+
 export default function Expenses () {
   const iconColor = useThemeColor({}, 'iconColor');
   const expenseIcon = <Ionicons name="wallet-outline" size={40} color={iconColor} />;
@@ -24,25 +25,32 @@ export default function Expenses () {
   const eventsTranslated = i18n.t('events');
 
     const { user } = useAuthentication();
+    const [uid, setUid] = useState<string>('');
+
+    useEffect(() => {
+      if (user) {
+        setUid(user.uid);
+      }
+    }, [user]);
   
   const router = useRouter();
   const navigation = useNavigation();
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
   useEffect(() => {
-    getExpenses().then((expenses) => {
+    getExpenses(uid).then((expenses) => {
       setExpenses(expenses);
+      console.log(expenses);
     }
     );
   }, []);
-
-  
 
 
   const renderItem = ({ item }: { item: Expense }) => (
     <ReimbursementListItem
       item={item}
-      onPress={() => router.push({ pathname: '/ExpenseDetails', params: { expense: item } })}
+      onPress={() => router.push({ pathname: '/expenses/', params: { item: item } })}
+      isApproved={item.isApproved}
     />
   );
 
@@ -54,7 +62,6 @@ export default function Expenses () {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         scrollEnabled={true}
-        onRefresh={getExpenses}
       />
   );
 };

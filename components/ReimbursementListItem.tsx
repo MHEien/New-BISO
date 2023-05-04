@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { ReimbursementListItemProps } from '../types';
+import { expenseStatus } from '../hooks/expenseStatus';
 
 
 
-const ReimbursementListItem = ({ item, onPress }: ReimbursementListItemProps) => {
+const ReimbursementListItem = ({ item, onPress, isApproved }: ReimbursementListItemProps) => {
   const prepaymentReceived = item.prepayment === 'Yes';
   const spentAmount = item.total;
   const prepaidAmount = item.prepaymentAmount;
   const outstandingAmount = prepaymentReceived ? spentAmount - prepaidAmount : spentAmount;
+  const containerStyle = isApproved ? styles.approved : styles.notApproved;
 
   const { height: windowHeight } = Dimensions.get('window');
   const [listHeight, setListHeight] = useState(0);
@@ -23,7 +25,7 @@ const ReimbursementListItem = ({ item, onPress }: ReimbursementListItemProps) =>
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
-      <View style={styles.leftContainer}>
+      <View style={[styles.leftContainer, containerStyle]}>
         <Text style={styles.title}>Expense #{item.invoiceId}</Text>
         <Text style={styles.subtitle}>{item.purpose}</Text>
         <Text style={styles.date}>{item.date.toDate().toLocaleDateString()}</Text>
@@ -59,6 +61,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#DDD',
+  },
+  approved: {
+    backgroundColor: 'green',
+  },
+  notApproved: {
+    backgroundColor: 'red',
   },
   leftContainer: {
     flex: 1,
