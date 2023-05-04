@@ -140,15 +140,16 @@ const attachmentsArray = expenseDetails.attachments;
   const handleOcr = async (image: string) => {
     const result = await MlkitOcr.detectFromUri(image);
     const text = result.map((block) => block.text).join('\n');
-    await axios.post('http://192.168.40.245:3000/openai', {
+    await axios.post('https://api.web.biso.no/openai', {
       text,
+      token: 'sdbashdb13123ksadjdsn'
     }).then((response) => {
       const data = response.data;
       const attachments = data.attachments;
       const newAttachments = attachments.map((attachment: any) => {
         return {
           ...attachment,
-          date: new Date(attachment.date) || new Date(),
+          date: attachment.date || '',
           description: attachment.description || '',
           amount: attachment.amount || '',
         };
