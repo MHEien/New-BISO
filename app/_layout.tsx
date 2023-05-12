@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, useColorScheme } from 'react-native';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import i18n from '../constants/localization';
-import { useRouter} from 'expo-router';
+import { useRouter } from 'expo-router';
 import Colors from '../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { logOut } from '../hooks/login';

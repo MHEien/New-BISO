@@ -85,44 +85,58 @@ export default function CameraScreen({ isVisible, onClose, onPictureTaken }: Cam
                     onCameraReady={handleCameraReady}
                     ref={(ref) => setCamera(ref)}
                 >
-                    <View style={styles.cameraContainer}>
-                        <View style={styles.cameraButtonContainer}>
-                            <TouchableOpacity onPress={handleTakePicture}>
-                                <View style={styles.cameraButton}>
-                                    <Ionicons name="camera" size={32} color={textColor} />
-                                </View>
-                            </TouchableOpacity>
-                        </View>
+                    <View style={styles.cameraCloseButtonContainer}>
+                        <TouchableOpacity onPress={onClose}>
+                            <View style={styles.cameraButton}>
+                                <Ionicons name="close" size={32} color={textColor} />
+                            </View>
+                        </TouchableOpacity>
                     </View>
+    
+                    <View style={styles.cameraButtonContainer}>
+                        <TouchableOpacity onPress={handleTakePicture}>
+                            <View style={styles.cameraButton}>
+                                <Ionicons name="camera" size={32} color={textColor} />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+    
                 </Camera>
             </View>
         </Modal>
     );
-};
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    cameraContainer: {
-        flex: 1,
-        backgroundColor: 'transparent',
-        flexDirection: 'row',
-    },
-    cameraButtonContainer: {
-        position: 'absolute', // Position the container absolutely
-        bottom: 40, // Set the bottom position
-        width: '100%', // Set the width to the full screen
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent',
-    },
-    cameraButton: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: 'rgba(255,255,255, 0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});
+}
+    
+    const styles = StyleSheet.create({
+        cameraContainer: {
+            flex: 1,
+            backgroundColor: 'transparent',
+            flexDirection: 'row',
+        },
+        cameraButtonContainer: {
+            position: 'absolute',
+            bottom: 40,
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'transparent',
+        },
+        cameraButton: {
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            backgroundColor: 'rgba(255,255,255, 0.3)',
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        cameraCloseButtonContainer: {
+            position: 'absolute', // Position the container absolutely
+            top: 40, // Set the top position
+            right: 20, // Set the right position
+            backgroundColor: 'transparent',
+        },
+        cameraCloseButton: {
+            margin: 10,
+        },
+    });
+    

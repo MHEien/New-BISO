@@ -2,7 +2,7 @@ import { StyleProp, ViewStyle } from "react-native/types";
 
 interface Department {
     id: number;
-    name: string;
+    label: string;
     campus: string;
   }
 
@@ -36,13 +36,16 @@ interface Department {
 
       interface SelectorProps {
         visible: boolean;
-        data: Array<{ id: string; color: string; label: string }>;
-        onSelect: (item: { id: string; color: string; label: string }) => void;
+        allData: Array<{ id: string; label: string, campus: string }>;
+        favoriteData?: Array<{ id: string;  label: string, campus: string }>; // Add the favoriteData prop
+        onSelect: (items: Array<{ id: string; label: string, campus: string }>) => void; // change here
         onClose: () => void;
         selectedItems?: string[]; // Add the selectedItems prop
         enableSearch?: boolean; // Add the enableSearch prop
+        multiSelect?: boolean; // Add the multiSelect prop
         enableFavorites?: boolean; // Add the enableFavorites prop
-      }
+    }
+    
 
       interface ProgressBarData {
         label: string;
@@ -169,9 +172,15 @@ interface ActiveVotingSession {
   election: string;
   voterKey: string;
 }
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  discount: number;
+  expirationDate?: string;
+};
 
 
 
 
-
-export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, Expenses, ReimbursementListItemProps, BannerProps, Candidate, Position, ElectionProps, ActiveVotingSession, Vote };
+export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, Expenses, ReimbursementListItemProps, BannerProps, Candidate, Position, ElectionProps, ActiveVotingSession, Vote, Product };

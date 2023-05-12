@@ -39,6 +39,7 @@ const CreateExpenseScreen: React.FC = () => {
     department: '',
     totalAmount: 0,
     attachments: [] as Attachment[],
+    isApproved: false,
   };
 
   const [expenseDetails, setExpenseDetails] = useState<Expense>(emptyExpense);
@@ -136,7 +137,9 @@ const attachmentsArray = expenseDetails.attachments;
     return !!attachment.description || !!attachment.date || !!attachment.amount;
   };
 
-  //Handle OCR, and POST data to backend, ap
+  //We handle the image, extracts image using OCR
+  //And passing the data to our server for processing.
+  //The relevant data is then returned and added to the expense.
   const handleOcr = async (image: string) => {
     const result = await MlkitOcr.detectFromUri(image);
     const text = result.map((block) => block.text).join('\n');
@@ -178,6 +181,9 @@ return (
         </TouchableOpacity>
         <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handlePayoutDetailsPress}>
           <Text style={[styles.fieldText, { color: textColor }]}>Payout details fetched from profile.</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handleContactDetailsPress}>
+          <Text style={[styles.fieldText, { color: textColor }]}>Contact details fetched from profile.</Text>
         </TouchableOpacity>
         <Text>Click one of the above if you have not set a profile yet.</Text>
       </View>

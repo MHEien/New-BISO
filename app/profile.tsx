@@ -29,7 +29,7 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
     const [favoritesOnly, setFavoritesOnly] = React.useState(false);
     const [departments, setDepartments] = React.useState([
-        { campus: "", id: 0, name: "" }
+        { campus: "", id: 0, label: "" }
     ]);
     const [selectorVisible, setSelectorVisible] = React.useState(false);
 
@@ -41,12 +41,17 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     }, [profile]);
 
     React.useEffect(() => {
-        const fetchDepartments = async () => {
-          const departments = await getDepartments();
-          setDepartments(departments);
-        };
-        fetchDepartments();
-      }, []);
+      const fetchDepartments = async () => {
+        const departments = await getDepartments();
+        // Ensure each department has a campus property
+        const departmentsWithCampus = departments.map(department => ({ 
+          ...department, 
+          campus: department.campus || "default_campus" // Replace "default_campus" with a suitable default
+        }));
+        setDepartments(departmentsWithCampus);
+      };
+      fetchDepartments();
+    }, []);
       
 
 
@@ -78,6 +83,11 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     );
 
 
+    const dummyFavorites = [
+        { id: '1', campus: 'Oslo', label: 'Favoritt 1' },
+        { id: '2', campus: 'Oslo', label: 'Favoritt 2' },
+        { id: '3', campus: 'oslo', label: 'Favoritt 3' }
+      ];
 
 
     const departmentDetails = (
@@ -93,16 +103,28 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
               key={tag}
             />
           ))}
-          <Selector
-            visible={selectorVisible}
-            data={departments.map((department) => ({ id: department.id ? department.id.toString() : '', color: 'blue', label: department.name }))}
+                <Selector
+        visible={selectorVisible}
+        allData={departments.map((department) => ({ 
+          id: department.id ? department.id.toString() : '', 
+          label: department.label,
+          campus: department.campus // Ensure we're passing the campus property
+        }))}
             enableSearch
-            onSelect={(item) => {
-              if (item) {
+            multiSelect
+            onSelect={(item: { id: string, label: string, campus: string } | Array<{ id: string, label: string, campus: string }>) => {
+              if (Array.isArray(item)) {
+                // If item is an array, map over it and extract the labels
+                const newTags = [...selectedTags, ...item.map(i => i.label)];
+                setSelectedTags(newTags);
+              } else {
+                // If item is a single object, just add its label
                 const newTags = [...selectedTags, item.label];
                 setSelectedTags(newTags);
               }
             }}
+            
+            
             
             onClose={() => setSelectorVisible(false)}
           />

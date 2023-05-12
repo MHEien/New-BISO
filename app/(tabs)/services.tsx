@@ -72,6 +72,12 @@ const Services: React.FC = () => {
       icon: expenseIcon,
       title: 'Create Expense',
       onPress: () => router.push('createExpense'),
+    },
+    {
+      key: 'item6',
+      icon: expenseIcon,
+      title: 'Membership',
+      onPress: () => router.push('MembershipScreen'),
     }
   ];
 

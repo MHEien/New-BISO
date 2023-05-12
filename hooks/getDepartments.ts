@@ -6,7 +6,7 @@ const getDepartments = async (): Promise<Department[]> => {
   const departmentsCollection = collection(db, 'departments');
   const departmentsSnapshot = await getDocs(departmentsCollection);
   const departmentsArray = departmentsSnapshot.docs.map(doc => ({
-    name: doc.data().Name,
+    label: doc.data().Name,
     id: doc.data().DepartmentId,
     campus: doc.data().Campus,
   }));
