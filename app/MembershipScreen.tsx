@@ -10,6 +10,7 @@ import { useAuthentication } from '../hooks';
 function MembershipScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product>();
+  const [productId, setProductId] = useState<number>();
 
   const { user } = useAuthentication();
   
@@ -26,6 +27,7 @@ function MembershipScreen() {
 
   const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
+    setProductId(product.id);
   };
 
   //Alert for missing Vipps implementation
@@ -45,11 +47,23 @@ function MembershipScreen() {
     router.push({ 
         pathname: '/PaymentScreen', 
         params: { 
-            selectedProduct: JSON.stringify(selectedProduct),
+            selectedProduct: JSON.stringify(productId),
             userId: user?.uid
         } 
     });
 };
+
+  const routeToVippsPaymentWithLogs = () => {
+    console.log('selectedProduct', selectedProduct);
+    router.push({
+      pathname: '/VippsPaymentScreen',
+      params: {
+        productId: JSON.stringify(productId),
+        name: JSON.stringify(selectedProduct?.name),
+        price: JSON.stringify(selectedProduct?.price),
+      }
+    });
+  };
 
 
   return (
@@ -90,7 +104,7 @@ function MembershipScreen() {
         </Text>
       </View>
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity disabled={!selectedProduct} onPress={handleVippsAlert}>
+        <TouchableOpacity disabled={!selectedProduct} onPress={routeToVippsPaymentWithLogs}>
           <Image source={require('../assets/vipps2.png')}  />
         </TouchableOpacity>
         <TouchableOpacity style={styles.payButton} disabled={!selectedProduct} onPress={routeToPaymentWithLogs}>

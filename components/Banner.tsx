@@ -22,6 +22,7 @@ const Banner: React.FC<BannerProps> = ({ isAuthenticated, onLoginPress, style })
   const buttonTextColor = useThemeColor({}, 'text');
 
 
+
   return (
     <View style={[styles.banner, style, { backgroundColor: bannerColor }]}>
       <Text style={[styles.welcomeText, { color: textColor }]}>
