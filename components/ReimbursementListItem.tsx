@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+
 import { ReimbursementListItemProps } from '../types';
 import { expenseStatus } from '../hooks/expenseStatus';
-
-
 
 const ReimbursementListItem = ({ item, onPress, isApproved }: ReimbursementListItemProps) => {
   const prepaymentReceived = item.prepayment === 'Yes';
@@ -24,8 +23,8 @@ const ReimbursementListItem = ({ item, onPress, isApproved }: ReimbursementListI
   }, [listHeight]);
 
   return (
-    <TouchableOpacity onPress={onPress} style={styles.container}>
-      <View style={[styles.leftContainer, containerStyle]}>
+    <TouchableOpacity onPress={onPress} style={[styles.container, containerStyle]}>
+      <View style={styles.leftContainer}>
         <Text style={styles.title}>Expense #{item.invoiceId}</Text>
         <Text style={styles.subtitle}>{item.purpose}</Text>
         <Text style={styles.date}>{item.date.toDate().toLocaleDateString()}</Text>
@@ -61,15 +60,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#DDD',
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
   approved: {
-    backgroundColor: 'green',
+    backgroundColor: 'white',
   },
   notApproved: {
-    backgroundColor: 'red',
+    backgroundColor: 'white',
   },
   leftContainer: {
     flex: 1,
+    marginRight: 16,
   },
   rightContainer: {
     alignItems: 'flex-end',
@@ -78,14 +84,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: '#333',
   },
   subtitle: {
     fontSize: 14,
-    color: '#888',
+    color: '#666',
   },
   date: {
     fontSize: 14,
-    color: '#888',
+    color: '#666',
     marginBottom: 4,
   },
   amountContainer: {
@@ -96,6 +103,7 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
   },
   amountDescription: {
     fontSize: 14,

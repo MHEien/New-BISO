@@ -17,11 +17,9 @@ interface Department {
         bankAccount?: string;
         bankType?: number;
         bic?: string;
-        subunits?: string[];
-        expenseDepartment?: string;
+        subunits?: Subunit[];
         campus?: string;
         pushToken?: string;
-        // Add other fields as needed
       }
       
       interface SwitchProps {
@@ -75,8 +73,8 @@ interface NewsListProps {
   onBannerVisibilityChange: (isVisible: boolean) => void;
 }
 
-interface Subunit {
-  id: number;
+type Subunit = {
+  id: string;
   name: string;
   campus: string;
 }
@@ -113,6 +111,7 @@ interface Expense {
   totalAmount: number;
   uid: string;
   isApproved: boolean;
+  lastDocument?: string;
 }
 
 interface Expenses {

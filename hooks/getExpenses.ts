@@ -1,19 +1,31 @@
-import { query, collectionGroup, where, getDocs } from "firebase/firestore";
+import { query, collectionGroup, where, getDocs, startAfter, limit, orderBy } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { useAuthentication } from "./useAuthentication";
-import { useState } from "react";
 import { Expense } from "../types";
 
-const getExpenses = async (uid: string): Promise<Expense[]> => {
+const getExpenses = async (uid: string, queryLimit: number, lastDocument?: any): Promise<Expense[]> => {
+  const passedLimit = queryLimit ? queryLimit : 10;
 
+  //If no lastDocument is passed, it is undefined and the query will return the first 5 documents.
+    const lastDoc = lastDocument ? lastDocument : '';
 
-    const q = query(collectionGroup(db, 'expenses'), where('uid', '==', uid));
-    const querySnapshot = await getDocs(q);
-    const expenses: Expense[] = [];
-    querySnapshot.forEach((doc) => {
-        expenses.push(doc.data() as Expense);
-    });
-    return expenses;
+  let q = query(
+    collectionGroup(db, 'expenses'),
+    where('uid', '==', uid),
+    orderBy('date', 'desc'), // Replace 'timestamp' with your actual timestamp field name
+    limit(passedLimit),
+    startAfter(lastDoc)
+  );
+  
+  if (lastDocument) {
+    q = query(q, startAfter(lastDocument));
+  }
+
+  const querySnapshot = await getDocs(q);
+  const expenses: Expense[] = [];
+  querySnapshot.forEach((doc) => {
+    expenses.push(doc.data() as Expense);
+  });
+  return expenses;
 };
 
 export { getExpenses };

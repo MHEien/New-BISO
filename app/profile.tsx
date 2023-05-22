@@ -12,7 +12,7 @@ import SwitchSelector from 'react-native-switch-selector';
 import { setDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useUserProfile, getDepartments } from '../hooks';
-import { Department, UserProfile } from '../types';
+import { Department, Subunit, UserProfile } from '../types';
 import LanguageSwitcher from '../components/LanguangeSwitcher';
 import i18n from '../constants/localization';
 
@@ -26,7 +26,7 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     const { profile, updateUserProfile } = useUserProfile();
     const [newProfile, setNewProfile] = React.useState<UserProfile | null>(null);
     const [selectedDepartment, setSelectedDepartment] = React.useState('');
-    const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = React.useState<Subunit[]>([]);
     const [favoritesOnly, setFavoritesOnly] = React.useState(false);
     const [departments, setDepartments] = React.useState([
         { campus: "", id: 0, label: "" }
@@ -37,6 +37,7 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
         if (profile) {
             setNewProfile(profile);
             setSelectedTags(profile?.subunits || []);
+            console.log(profile?.subunits)
         }
     }, [profile]);
 
@@ -83,24 +84,18 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     );
 
 
-    const dummyFavorites = [
-        { id: '1', campus: 'Oslo', label: 'Favoritt 1' },
-        { id: '2', campus: 'Oslo', label: 'Favoritt 2' },
-        { id: '3', campus: 'oslo', label: 'Favoritt 3' }
-      ];
-
 
     const departmentDetails = (
         <View>
           {selectedTags.map((tag) => (
             <Tag
               color='blue'
-              content={tag}
+              content={tag.name}
               onRemove={() => {
                 const newTags = selectedTags.filter((t) => t !== tag);
                 setSelectedTags(newTags);
               }}
-              key={tag}
+              key={tag.id}
             />
           ))}
                 <Selector
@@ -110,22 +105,29 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
           label: department.label,
           campus: department.campus // Ensure we're passing the campus property
         }))}
+        
             enableSearch
             multiSelect
             onSelect={(item: { id: string, label: string, campus: string } | Array<{ id: string, label: string, campus: string }>) => {
               if (Array.isArray(item)) {
-                // If item is an array, map over it and extract the labels
-                const newTags = [...selectedTags, ...item.map(i => i.label)];
+                const newTags = item.map(i => ({
+                  id: i.id,
+                  name: i.label,
+                  campus: i.campus
+                }));
                 setSelectedTags(newTags);
               } else {
-                // If item is a single object, just add its label
-                const newTags = [...selectedTags, item.label];
-                setSelectedTags(newTags);
+                const newSubunit = {
+                  id: item.id,
+                  name: item.label,
+                  campus: item.campus
+                };                
+                setSelectedTags([...selectedTags, newSubunit]);
+                
               }
             }}
             
-            
-            
+                    
             onClose={() => setSelectorVisible(false)}
           />
           <TouchableOpacity

@@ -44,10 +44,10 @@ const Services: React.FC = () => {
 
   const items = [
     {
-      key: 'expenses',
+      key: 'item1',
       icon: expenseIcon,
       title: expensesTranslated,
-      onPress: () => router.push('/expenses'),
+      onPress: () => router.push('expenses'),
     },
     {
       key: 'item2',
@@ -66,12 +66,6 @@ const Services: React.FC = () => {
       icon: profileIcon,
       title: eventsTranslated,
       onPress: () => router.push('events'),
-    },
-    {
-      key: 'item5',
-      icon: expenseIcon,
-      title: 'Create Expense',
-      onPress: () => router.push('createExpense'),
     },
     {
       key: 'item6',

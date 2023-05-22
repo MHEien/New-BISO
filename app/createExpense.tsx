@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, FlatList, Button, KeyboardAvoidingView, ScrollView, Platform, } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, FlatList, Button, KeyboardAvoidingView, ScrollView, Platform, Switch, } from 'react-native';
 import { useThemeColor, Text } from '../components/Themed';
 import { useRouter } from 'expo-router';
 import { useAuthentication } from '../hooks';
@@ -15,10 +15,13 @@ import Modal from '../components/Modal';
 import CameraScreen from '../components/CameraModal';
 import MlkitOcr from 'react-native-mlkit-ocr';
 import axios from 'axios';
+import Selector from '../components/Selector';
+import { addDoc, collection } from 'firebase/firestore';
+import { db, storage } from '../config/firebase';
 
 const CreateExpenseScreen: React.FC = () => {
   const router = useRouter();
-  const { user, profile, createExpense } = useAuthentication();
+  const { user, profile } = useAuthentication();
   const emptyExpense: Expense = {
     uid: user?.uid || '',
     id: '',
@@ -44,11 +47,13 @@ const CreateExpenseScreen: React.FC = () => {
 
   const [expenseDetails, setExpenseDetails] = useState<Expense>(emptyExpense);
   const [favoriteUnits, setFavoriteUnits] = useState<Subunit[]>([]);
+  const [showDepartments, setShowDepartments] = useState(false);
   const [descriptionStringified, setDescriptionStringified] = useState<string>('');
   const [isCameraVisible, setIsCameraVisible] = useState(false);
   const [type, setType] = useState(CameraType.back);
   const [modalVisible, setModalVisible] = useState(false);
   const [cameraModalVisible, setCameraModalVisible] = useState(false);
+  const [purposeEnabled, setPurposeEnabled] = useState(false);
 
 
   const handleContactDetailsPress = () => {
@@ -63,26 +68,164 @@ const CreateExpenseScreen: React.FC = () => {
   const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
   const textColor = useThemeColor({}, 'text');
 
-  //Initialize profile values or empty data.
-  useEffect(() => {
-    if (profile) {
-      setExpenseDetails({
-        ...expenseDetails,
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
-        address: profile.address || '',
-        city: profile.city || '',
-        zip: profile.zip || '',
-        bankAccountNumber: profile.bankAccount || '',
-        campus: profile.campus || '',
-        department: profile.expenseDepartment || '',
-        attachments: [] as Attachment[],
-        invoiceId: '',
+// Initialize profile values or empty data.
+useEffect(() => {
+  if (profile) {
+    setExpenseDetails({
+      ...expenseDetails,
+      firstName: profile.firstName || '',
+      lastName: profile.lastName || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      address: profile.address || '',
+      city: profile.city || '',
+      zip: profile.zip || '',
+      bankAccountNumber: profile.bankAccount || '',
+      campus: profile.campus || '',
+      department: Array.isArray(profile.subunits)
+        ? profile.subunits[0].name || ''
+        : profile.subunits || '', // Make sure to access the 'name' property
+      attachments: [] as Attachment[],
+      invoiceId: '',
+    });
+
+    if (profile.subunits ) {
+      if (profile.subunits.length > 0) {
+      const favoriteUnits: Subunit[] = profile.subunits.map((subunit: string | Subunit) => {
+        if (typeof subunit === 'string') {
+          return { id: '0', name: subunit, campus: '' }; // Provide default values for id and campus
+        }
+        return subunit;
       });
+      setFavoriteUnits(favoriteUnits);
     }
-  }, [profile]);
+    else {
+      setFavoriteUnits([]);
+    }
+  }
+  }
+}, [profile]);
+
+
+const createExpense = async (expense: Expense) => {
+  try {
+  const expenseRef = collection(db, `users/${user?.uid}/expenses`);
+  await addDoc(expenseRef, expense);
+  } catch (error) {
+    console.log(error);
+  }
+  const attachments = expenseDetails.attachments.map((attachment) => ({
+    attachmentDescription: attachment.description,
+    dateOfAttachment: attachment.date,
+    amount: attachment.amount,
+    image: attachment.file,
+  }));
+  const powerAutomateData = {
+    firstname: expenseDetails.firstName,
+    lastname: expenseDetails.lastName,
+    address: expenseDetails.address,
+    phone: expenseDetails.phone,
+    city: expenseDetails.city,
+    zip: expenseDetails.zip,
+    email: expenseDetails.email,
+    bank: expenseDetails.bankAccountNumber,
+    org: expenseDetails.department,
+    campus: expenseDetails.campus,
+    purpose: expenseDetails.purpose,
+    unit: expenseDetails.department,
+    date: expenseDetails.date.toISOString(),
+    prepayment: expenseDetails.prepayment,
+    prepaymentAmount: expenseDetails.prepaymentAmount,
+    attachments: attachments,
+    total: expenseDetails.totalAmount,
+    outstanding: expenseDetails.outstanding,
+    invoiceId: expenseDetails.invoiceId,
+  };
+
+  try {
+    // Submit expense to Power Automate endpoint
+    await axios.post('https://prod-137.westeurope.logic.azure.com:443/workflows/57b3e0b3246d4fa68c8c88a04c7f8c0c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G3ENciWITukSRZfV39m-vFsvOI8_MFWGXJytIwSYQCI', powerAutomateData);
+  } catch (error) {
+    console.log(error);
+  }
+  router.push('expenses');
+};
+
+
+  const DepartmentSelector = () => {
+    const [showDepartments, setShowDepartments] = useState(false);
+  
+    if (favoriteUnits.length === 0) {
+      return <View />;
+    }
+
+    
+  
+    if (favoriteUnits.length > 1) {
+      return (
+        <View>
+          <TouchableOpacity
+            onPress={() => setShowDepartments(true)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingVertical: 10,
+            }}
+          >
+            <Text style={{ color: textColor, fontSize: 16 }}>
+              {expenseDetails.department}
+            </Text>
+            <IonIcons name="chevron-down" size={20} color={textColor} />
+          </TouchableOpacity>
+          <Selector
+            allData={favoriteUnits.map((department) => ({
+              id: department.id ? department.id.toString() : '',
+              label: department.name || '',
+              campus: department.campus || '',
+            }))}
+            visible={showDepartments}
+            onClose={() => setShowDepartments(false)}
+            onSelect={(items: { id: string; label: string; campus: string }[]) => {
+              if (items.length > 0) {
+                const selectedDepartment = items[0];
+                setExpenseDetails({
+                  ...expenseDetails,
+                  department: selectedDepartment.label,
+                  campus: selectedDepartment.campus,
+                });
+              }
+            }}
+          />
+        </View>
+      );
+    }
+  
+    return (
+      <View>
+        <TouchableOpacity
+          onPress={() => setShowDepartments(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingVertical: 10,
+          }}
+        >
+          <Text style={{ color: textColor, fontSize: 16 }}>
+            {expenseDetails.department}
+          </Text>
+          <IonIcons name="chevron-down" size={20} color={textColor} />
+        </TouchableOpacity>
+      
+      </View>
+    );
+  };
+  
+  
+
+
+  
 
   //Calculate attachment amounts to number, and calculate total amount
   useEffect(() => {
@@ -115,31 +258,6 @@ const CreateExpenseScreen: React.FC = () => {
     stringifyAttachmentDescriptions(expenseDetails.attachments);
   }, [expenseDetails.attachments]);
   
-  
-  
-  const handleSubmit = async () => {
-
-const attachmentsArray = expenseDetails.attachments;
-
-    const purpose = await generatePurpose(attachmentsArray);
-    const invoiceId = await getNextInvoiceId();
-    setExpenseDetails({
-      ...expenseDetails,
-      invoiceId,
-      purpose: purpose,
-    });
-    console.log(expenseDetails);
-    createExpense(expenseDetails);
-  };
-
-
-  const isAttachmentFilled = (attachment: Attachment) => {
-    return !!attachment.description || !!attachment.date || !!attachment.amount;
-  };
-
-  //We handle the image, extracts image using OCR
-  //And passing the data to our server for processing.
-  //The relevant data is then returned and added to the expense.
   const handleOcr = async (image: string) => {
     const result = await MlkitOcr.detectFromUri(image);
     const text = result.map((block) => block.text).join('\n');
@@ -164,7 +282,62 @@ const attachmentsArray = expenseDetails.attachments;
       setCameraModalVisible(false);
     });
   };
+  
+  const handleSubmit = async () => {
+    const attachmentsArray = expenseDetails.attachments;
+  
+    // Upload images to the database
+    const uploadedAttachments = await Promise.all(
+      attachmentsArray.map(async (attachment) => {
+        if (attachment.file) {
+          // Generate a unique filename for the image
+          const filename = `${user?.uid}_${Date.now()}`;
+          const storageRef = ref(storage, `images/${filename}`);
+  
+          // Convert the file to a Blob
+          const blob = new Blob([attachment.file]);
+  
+          // Upload the Blob to the storage
+          await uploadBytes(storageRef, blob);
+  
+          // Get the download URL of the uploaded image
+          const downloadURL = await getDownloadURL(storageRef);
+  
+          // Return the updated attachment with the download URL
+          return {
+            ...attachment,
+            image: downloadURL,
+          };
+        } else {
+          return attachment;
+        }
+      })
+    );
+  
+    // Update the expense details with the uploaded attachments
+    setExpenseDetails({
+      ...expenseDetails,
+      attachments: uploadedAttachments,
+    });
+  
+    const purpose = await generatePurpose(uploadedAttachments);
+    const invoiceId = await getNextInvoiceId();
+    setExpenseDetails({
+      ...expenseDetails,
+      invoiceId,
+      purpose: purpose,
+    });
+  
+    createExpense(expenseDetails);
+  };
+  
 
+
+  const handlePurposeEnabled = () => {
+    setPurposeEnabled(!purposeEnabled);
+  };
+
+  
   
 
 return (
@@ -182,10 +355,8 @@ return (
         <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handlePayoutDetailsPress}>
           <Text style={[styles.fieldText, { color: textColor }]}>Payout details fetched from profile.</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handleContactDetailsPress}>
-          <Text style={[styles.fieldText, { color: textColor }]}>Contact details fetched from profile.</Text>
-        </TouchableOpacity>
-        <Text>Click one of the above if you have not set a profile yet.</Text>
+        <DepartmentSelector />
+        <Text> Creating a profile is required for submitting expenses.</Text>
       </View>
       <View style={{ marginBottom: 16, flex: 1 }}>
         <View style={styles.row}>
@@ -198,6 +369,7 @@ return (
           />
           </TouchableOpacity>
         </View>
+
           <ScrollView>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
   {expenseDetails.attachments.map((attachment, index) => (
@@ -312,6 +484,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  input: {
+    marginBottom: 16,
   },
 });
 

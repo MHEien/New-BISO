@@ -12,12 +12,7 @@ export function useAuthentication() {
   const [user, setUser] = React.useState<User>();
   const [profile, setProfile] = React.useState<UserProfile>();
 
-  const createExpense = async (expense: Expense) => {
-    const expenseRef = collection(db, `users/${user?.uid}/expenses`);
-    await addDoc(expenseRef, expense);
-  };
-
-
+  
   const fetcProfile = async (uid: string) => {
     const profileRef = doc(db, 'users', uid);
     const profileSnap = await getDoc(profileRef);
@@ -50,6 +45,5 @@ export function useAuthentication() {
   return {
     user,
     profile,
-    createExpense,
   };
 }
