@@ -18,12 +18,12 @@ type Props = SelectorProps & {
   multiSelect?: boolean;
   allData?: {
     id: string;
-    label: string;
+    name: string;
     campus: string;
   }[];
   favoriteData?: {
     id: string;
-    label: string;
+    name: string;
     campus: string;
   }[];
 };
@@ -43,7 +43,7 @@ const Selector: React.FC<Props> = ({
   const [favoritesOnly, setFavoritesOnly] = useState(false);
 const [selectedItems, setSelectedItems] = useState<{
   id: string;
-  label: string;
+  name: string;
   campus: string;
 }[]>([]);
 
@@ -56,7 +56,7 @@ const [selectedItems, setSelectedItems] = useState<{
       ? allData
       : [];
   const filteredDataWithSearch = filteredData.filter((item) =>
-    item.label ? item.label.toLowerCase().includes(searchTerm.toLowerCase()) : false
+    item.name ? item.name.toLowerCase().includes(searchTerm.toLowerCase()) : false
   );
 
   const toggleFavorites = () => {
@@ -66,7 +66,7 @@ const [selectedItems, setSelectedItems] = useState<{
   const toggleItemSelection = (item: {
     id: string;
     campus: string;
-    label: string;
+    name: string;
   }) => {
     if (multiSelect) {
       if (selectedItems.some((selectedItem) => selectedItem.id === item.id)) {
@@ -82,7 +82,7 @@ const [selectedItems, setSelectedItems] = useState<{
   const isItemSelected = (item: {
     id: string;
     campus: string;
-    label: string;
+    name: string;
   }) => selectedItems.some((selectedItem) => selectedItem.id === item.id);
 
   return (
@@ -143,7 +143,7 @@ const [selectedItems, setSelectedItems] = useState<{
         onPress={() => toggleItemSelection(item)}
       >
         <Text style={[styles.listItemText, isItemSelected(item) ? styles.listItemSelectedText : null]}>
-          {item.label}
+          {item.name}
         </Text>
       </TouchableOpacity>
     );

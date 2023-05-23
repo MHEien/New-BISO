@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, FlatList, Button, KeyboardAvoidingView, ScrollView, Platform, Switch, } from 'react-native';
 import { useThemeColor, Text } from '../components/Themed';
 import { useRouter } from 'expo-router';
-import { useAuthentication } from '../hooks';
+import { getDepartments, useAuthentication } from '../hooks';
 import { Expense, Attachment, Subunit } from '../types';
 import Accordion from '../components/Accordion';
 import TextInput from '../components/TextInput';
@@ -33,7 +33,6 @@ const CreateExpenseScreen: React.FC = () => {
     city: '',
     zip: '',
     date: new Date(),
-    invoiceId: '',
     outstanding: 0,
     prepayment: false,
     purpose: '',
@@ -54,7 +53,18 @@ const CreateExpenseScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [cameraModalVisible, setCameraModalVisible] = useState(false);
   const [purposeEnabled, setPurposeEnabled] = useState(false);
+  const [allDepartments, setAllDepartments] = useState<Subunit[]>([]);
+  const [showPurposeModal, setShowPurposeModal] = useState(false);
 
+
+  React.useEffect(() => {
+    const fetchDepartments = async () => {
+      const departments = await getDepartments();
+      setAllDepartments(departments);
+    };
+    fetchDepartments();
+  }
+  , []);
 
   const handleContactDetailsPress = () => {
     router.push('profile');
@@ -82,11 +92,10 @@ useEffect(() => {
       zip: profile.zip || '',
       bankAccountNumber: profile.bankAccount || '',
       campus: profile.campus || '',
-      department: Array.isArray(profile.subunits)
-        ? profile.subunits[0].name || ''
-        : profile.subunits || '', // Make sure to access the 'name' property
+      department: Array.isArray(profile.subunits) && profile.subunits.length > 0
+      ? profile.subunits[0].name || ''
+      : '',
       attachments: [] as Attachment[],
-      invoiceId: '',
     });
 
     if (profile.subunits ) {
@@ -134,12 +143,11 @@ const createExpense = async (expense: Expense) => {
     purpose: expenseDetails.purpose,
     unit: expenseDetails.department,
     date: expenseDetails.date.toISOString(),
-    prepayment: expenseDetails.prepayment,
+    prepayment: expenseDetails.prepayment || '',
     prepaymentAmount: expenseDetails.prepaymentAmount,
     attachments: attachments,
-    total: expenseDetails.totalAmount,
-    outstanding: expenseDetails.outstanding,
-    invoiceId: expenseDetails.invoiceId,
+    total: expenseDetails.totalAmount.toString(),
+    outstanding: expenseDetails.outstanding.toString(),
   };
 
   try {
@@ -152,55 +160,42 @@ const createExpense = async (expense: Expense) => {
 };
 
 
-  const DepartmentSelector = () => {
-    const [showDepartments, setShowDepartments] = useState(false);
+const DepartmentSelector = () => {
+  const [showDepartments, setShowDepartments] = useState(false);
   
-    if (favoriteUnits.length === 0) {
-      return <View />;
-    }
+  // Return a TextInput if there are no favorite units available
+  if (favoriteUnits.length === 0) {
+    return (
+      <View>
+      <TouchableOpacity
+        onPress={() => setShowDepartments(true)}
+        style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]}
+      >
+        <Text style={{ color: textColor, fontSize: 16 }}>
+          {expenseDetails.department || 'Velg avdeling'}
+        </Text>
+      </TouchableOpacity>
+      <Selector
+        allData={allDepartments}
+        visible={showDepartments}
+        onClose={() => setShowDepartments(false)}
+        onSelect={(items: { id: string; name: string; campus: string }[]) => {
+          if (items.length > 0) {
+            setExpenseDetails({
+              ...expenseDetails,
+              department: items[0].name,
+              campus: items[0].campus,
+            });
+          }
+          setShowDepartments(false);
+        }
+        }
+      />
+    </View>
+    );
+  }
 
-    
-  
-    if (favoriteUnits.length > 1) {
-      return (
-        <View>
-          <TouchableOpacity
-            onPress={() => setShowDepartments(true)}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingVertical: 10,
-            }}
-          >
-            <Text style={{ color: textColor, fontSize: 16 }}>
-              {expenseDetails.department}
-            </Text>
-            <IonIcons name="chevron-down" size={20} color={textColor} />
-          </TouchableOpacity>
-          <Selector
-            allData={favoriteUnits.map((department) => ({
-              id: department.id ? department.id.toString() : '',
-              label: department.name || '',
-              campus: department.campus || '',
-            }))}
-            visible={showDepartments}
-            onClose={() => setShowDepartments(false)}
-            onSelect={(items: { id: string; label: string; campus: string }[]) => {
-              if (items.length > 0) {
-                const selectedDepartment = items[0];
-                setExpenseDetails({
-                  ...expenseDetails,
-                  department: selectedDepartment.label,
-                  campus: selectedDepartment.campus,
-                });
-              }
-            }}
-          />
-        </View>
-      );
-    }
-  
+  if (favoriteUnits.length > 1) {
     return (
       <View>
         <TouchableOpacity
@@ -217,10 +212,49 @@ const createExpense = async (expense: Expense) => {
           </Text>
           <IonIcons name="chevron-down" size={20} color={textColor} />
         </TouchableOpacity>
-      
+        <Selector
+          allData={favoriteUnits.map((department) => ({
+            id: department.id ? department.id.toString() : '',
+            name: department.name || '',
+            campus: department.campus || '',
+          }))}
+          visible={showDepartments}
+          onClose={() => setShowDepartments(false)}
+          onSelect={(items: { id: string; name: string; campus: string }[]) => {
+            if (items.length > 0) {
+              const selectedDepartment = items[0];
+              setExpenseDetails({
+                ...expenseDetails,
+                department: selectedDepartment.name,
+                campus: selectedDepartment.campus,
+              });
+            }
+          }}
+        />
       </View>
     );
-  };
+  }
+  
+  return (
+    <View>
+      <TouchableOpacity
+        onPress={() => setShowDepartments(true)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingVertical: 10,
+        }}
+      >
+        <Text style={{ color: textColor, fontSize: 16 }}>
+          {expenseDetails.department}
+        </Text>
+        <IonIcons name="chevron-down" size={20} color={textColor} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
   
   
 
@@ -324,7 +358,6 @@ const createExpense = async (expense: Expense) => {
     const invoiceId = await getNextInvoiceId();
     setExpenseDetails({
       ...expenseDetails,
-      invoiceId,
       purpose: purpose,
     });
   
@@ -333,12 +366,6 @@ const createExpense = async (expense: Expense) => {
   
 
 
-  const handlePurposeEnabled = () => {
-    setPurposeEnabled(!purposeEnabled);
-  };
-
-  
-  
 
 return (
   <KeyboardAvoidingView
@@ -487,6 +514,52 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    padding: 16,
+    width: '80%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  button: {
+    borderRadius: 5,
+    padding: 10,
+    elevation: 2,
+    width: '40%',
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  buttonCancel: {
+    backgroundColor: '#FF0000',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 16,
+    textAlign: 'center',
   },
 });
 

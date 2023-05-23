@@ -1,10 +1,5 @@
 import { StyleProp, ViewStyle } from "react-native/types";
 
-interface Department {
-    id: number;
-    label: string;
-    campus: string;
-  }
 
     interface UserProfile {
         firstName?: string;
@@ -34,9 +29,9 @@ interface Department {
 
       interface SelectorProps {
         visible: boolean;
-        allData: Array<{ id: string; label: string, campus: string }>;
-        favoriteData?: Array<{ id: string;  label: string, campus: string }>; // Add the favoriteData prop
-        onSelect: (items: Array<{ id: string; label: string, campus: string }>) => void; // change here
+        allData: Array<{ id: string; name: string, campus: string }>;
+        favoriteData?: Array<{ id: string;  name: string, campus: string }>; // Add the favoriteData prop
+        onSelect: (items: Array<{ id: string; name: string, campus: string }>) => void; // change here
         onClose: () => void;
         selectedItems?: string[]; // Add the selectedItems prop
         enableSearch?: boolean; // Add the enableSearch prop
@@ -102,7 +97,6 @@ interface Expense {
   firstName: string;
   lastName: string;
   phone: string;
-  invoiceId: string;
   outstanding: number;
   zip: string;
   prepayment: boolean;
@@ -182,4 +176,4 @@ type Product = {
 
 
 
-export { Department, Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, Expenses, ReimbursementListItemProps, BannerProps, Candidate, Position, ElectionProps, ActiveVotingSession, Vote, Product };
+export { Attachment, UserProfile, SwitchProps, SelectorProps, ProgressBarData, ProgressBarProps, NewsPost, NewsListProps, Subunit, Expense, Expenses, ReimbursementListItemProps, BannerProps, Candidate, Position, ElectionProps, ActiveVotingSession, Vote, Product };

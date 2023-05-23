@@ -12,7 +12,7 @@ import SwitchSelector from 'react-native-switch-selector';
 import { setDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useUserProfile, getDepartments } from '../hooks';
-import { Department, Subunit, UserProfile } from '../types';
+import { Subunit, UserProfile } from '../types';
 import LanguageSwitcher from '../components/LanguangeSwitcher';
 import i18n from '../constants/localization';
 
@@ -29,7 +29,7 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     const [selectedTags, setSelectedTags] = React.useState<Subunit[]>([]);
     const [favoritesOnly, setFavoritesOnly] = React.useState(false);
     const [departments, setDepartments] = React.useState([
-        { campus: "", id: 0, label: "" }
+        { campus: "", id: '0', name: "" }
     ]);
     const [selectorVisible, setSelectorVisible] = React.useState(false);
 
@@ -101,25 +101,25 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
                 <Selector
         visible={selectorVisible}
         allData={departments.map((department) => ({ 
-          id: department.id ? department.id.toString() : '', 
-          label: department.label,
+          id: department.id ? department.id : '', 
+          name: department.name,
           campus: department.campus // Ensure we're passing the campus property
         }))}
         
             enableSearch
             multiSelect
-            onSelect={(item: { id: string, label: string, campus: string } | Array<{ id: string, label: string, campus: string }>) => {
+            onSelect={(item: { id: string, name: string, campus: string } | Array<{ id: string, name: string, campus: string }>) => {
               if (Array.isArray(item)) {
                 const newTags = item.map(i => ({
                   id: i.id,
-                  name: i.label,
+                  name: i.name,
                   campus: i.campus
                 }));
                 setSelectedTags(newTags);
               } else {
                 const newSubunit = {
                   id: item.id,
-                  name: item.label,
+                  name: item.name,
                   campus: item.campus
                 };                
                 setSelectedTags([...selectedTags, newSubunit]);

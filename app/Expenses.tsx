@@ -13,7 +13,6 @@ import { getExpenses } from '../hooks/getExpenses';
 import FAB from '../components/FAB';
 
 export default function Expenses() {
-  const iconColor = useThemeColor({}, 'iconColor');
   const { user } = useAuthentication();
   const [uid, setUid] = useState<string>('');
   const [limit, setLimit] = useState(10);
@@ -21,6 +20,10 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   
   const router = useRouter();
+
+  //Colors
+  const iconColor = useThemeColor({}, 'iconColor');
+
 
   useEffect(() => {
     if (user) {
