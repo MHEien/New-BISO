@@ -12,6 +12,17 @@ const RegisterScreen = () => {
     const [steps, setSteps] = useState<React.ReactNode[]>([]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [selectedItems, setSelectedItems] = useState<Set<string | number>>(new Set());
+    const [profile, setProfile] = useState({ 
+        firstName: '',
+        lastName: '',
+        address: '',
+        city: '',
+        zip: '',
+        phone: '',
+        bankAccount: '',
+        newFeatures: true,
+    });
     
     const tEmail = i18n.t('email');
     const tPassword = i18n.t('password');
@@ -33,31 +44,87 @@ const RegisterScreen = () => {
           title: 'Elections',
           subtitle: 'The election module lets you vote on issues and candidates directly from the BISO app. (Requires a BISO account, and authentication.)',
           icon: electionIcon,
-        },
-        {
-          id: 3,
-          title: 'Item 3',
-          subtitle: 'Item 3 description',
-          icon: electionIcon,
-        },
+        }
       ];
+      
+      const renderExpensesStep = () => {
+        return (
+            <View>
+                <TextInput
+                    label="First Name"
+                    value={profile.firstName}
+                    onChangeText={(text) => setProfile({ ...profile, firstName: text })}
+                />
+                <TextInput
+                    label="Last Name"
+                    value={profile.lastName}
+                    onChangeText={(text) => setProfile({ ...profile, lastName: text })}
+                />
+                <TextInput
+                    label="Address"
+                    value={profile.address}
+                    onChangeText={(text) => setProfile({ ...profile, address: text })}
+                />
+                <TextInput
+                    label="City"
+                    value={profile.city}
+                    onChangeText={(text) => setProfile({ ...profile, city: text })}
+                />
+                <TextInput
+                    label="Zip"
+                    value={profile.zip}
+                    onChangeText={(text) => setProfile({ ...profile, zip: text })}
+                />
+                <TextInput
+                    label="Phone"
+                    value={profile.phone}
+                    onChangeText={(text) => setProfile({ ...profile, phone: text })}
+                />
+                <TextInput
+                    label="Bank Account"
+                    value={profile.bankAccount}
+                    onChangeText={(text) => setProfile({ ...profile, bankAccount: text })}
+                />
+            </View>
+        );
+    };
+
+    const renderElectionsStep = () => {
+        return (
+            <View>
+                <Text>Step 2</Text>
+            </View>
+        );
+    };
+
+
 
     useEffect(() => {
         setSteps([
         <View key="1">
             <Text>
-                To personalize your experience, will you be using any of these services?
+                Will you be using any of these services?
             </Text>
-            <MultiSelectList items={services} />
+            <MultiSelectList items={services} onSelectionChange={setSelectedItems} />
         </View>,
+        
         <View key="2">
-            <Text>Step 2</Text>
+            {selectedItems.has(1) && renderExpensesStep()}
         </View>,
         <View key="3">
-            <Text>Step 3</Text>
+            <TextInput
+                label={tEmail}
+                value={email}
+                onChangeText={(text) => setEmail(text)}
+            />
+            <TextInput
+                label={tPassword}
+                value={password}
+                onChangeText={(text) => setPassword(text)}
+            />
         </View>,
         ]);
-    }, []);
+    }, [selectedItems, email, password]);
     
     const onRegister = () => {
         console.log('onRegister');

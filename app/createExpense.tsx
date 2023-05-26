@@ -317,6 +317,7 @@ const DepartmentSelector = () => {
     });
   };
   
+  
   const handleSubmit = async () => {
     const attachmentsArray = expenseDetails.attachments;
   
@@ -355,7 +356,6 @@ const DepartmentSelector = () => {
     });
   
     const purpose = await generatePurpose(uploadedAttachments);
-    const invoiceId = await getNextInvoiceId();
     setExpenseDetails({
       ...expenseDetails,
       purpose: purpose,
@@ -363,7 +363,6 @@ const DepartmentSelector = () => {
   
     createExpense(expenseDetails);
   };
-  
 
 
 
@@ -477,6 +476,7 @@ return (
       onPictureTaken={async (image) => {
         await handleOcr(image);
         setCameraModalVisible(false);
+        setModalVisible(false);
       }}
     />
   </KeyboardAvoidingView>

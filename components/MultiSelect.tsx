@@ -18,9 +18,10 @@ interface ListItem {
 interface MultiSelectListProps {
   items: ListItem[];
   style?: StyleProp<ViewStyle>;
+  onSelectionChange?: (selectedItems: Set<string | number>) => void; // add this line
 }
 
-const MultiSelectList: React.FC<MultiSelectListProps> = ({ items, style }) => {
+const MultiSelectList: React.FC<MultiSelectListProps> = ({ items, style, onSelectionChange }) => {
   const [selectedItems, setSelectedItems] = useState<Set<string | number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
 
@@ -29,20 +30,39 @@ const MultiSelectList: React.FC<MultiSelectListProps> = ({ items, style }) => {
 
   const toggleItemSelection = (id: string | number) => {
     setSelectedItems((prevSelectedItems) => {
+      let newSelectedItems;
       if (prevSelectedItems.has(id)) {
         prevSelectedItems.delete(id);
-        return new Set([...prevSelectedItems]);
+        newSelectedItems = new Set([...prevSelectedItems]);
       } else {
-        return new Set([...prevSelectedItems, id]);
+        newSelectedItems = new Set([...prevSelectedItems, id]);
       }
+
+      // call the callback with the new selected items
+      if (onSelectionChange) {
+        onSelectionChange(newSelectedItems);
+      }
+
+      return newSelectedItems;
     });
   };
 
   const toggleSelectAll = () => {
     if (selectAll) {
       setSelectedItems(new Set());
+
+      // call the callback with an empty set
+      if (onSelectionChange) {
+        onSelectionChange(new Set());
+      }
     } else {
-      setSelectedItems(new Set(items.map((item) => item.id)));
+      const allItems = new Set(items.map((item) => item.id));
+      setSelectedItems(allItems);
+
+      // call the callback with all items
+      if (onSelectionChange) {
+        onSelectionChange(allItems);
+      }
     }
     setSelectAll(!selectAll);
   };

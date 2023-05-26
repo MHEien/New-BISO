@@ -18,20 +18,20 @@ const login = async (email: string, password: string) => {
 };
 
 
-const register = async (email: string, password: string, firstname: string, lastname: string, phoneNumber: string, bankAccountNumber: string, address: string, city: string, postcode: string) => {
+const register = async (email: string, password: string, profile: any) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const uid = user.uid;
     await setDoc(doc(db, 'users', user.uid), {
         uid,
         email,
-        firstname,
-        lastname,
-        phoneNumber,
-        bankAccountNumber,
-        address,
-        city,
-        postcode,
+        firstname: profile.firstname,
+        lastname: profile.lastname,
+        phoneNumber: profile.phone,
+        bankAccountNumber: profile.bankAccount,
+        address: profile.address,
+        city: profile.city,
+        postcode: profile.postcode,
         newFeatures: true
     });
     return user;
