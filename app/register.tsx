@@ -1,148 +1,165 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button } from '../components/Themed';
-import TextInput from '../components/TextInput';
-import { StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { useAuthentication } from '../hooks/useAuthentication';
+import { login,register } from '../hooks/login';
+import LanguageSwitcher from '../components/LanguangeSwitcher';
 import i18n from '../constants/localization';
-import Stepper from '../components/Stepper';
-import MultiSelectList from '../components/MultiSelect';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Link } from 'expo-router';
 import { useThemeColor } from '../components/Themed';
+import { useRouter } from 'expo-router';
+import { Layout, Text, Input, Button, useTheme, StyleService, Modal, Card } from '@ui-kitten/components';
+import { GradientLayout } from '../components/GradientLayout';
+import { Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-const RegisterScreen = () => {
-    const [steps, setSteps] = useState<React.ReactNode[]>([]);
+const windowsHeight = Dimensions.get('window').height;
+
+
+
+export default function Login() {
+    const { user } = useAuthentication();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [selectedItems, setSelectedItems] = useState<Set<string | number>>(new Set());
-    const [profile, setProfile] = useState({ 
-        firstName: '',
-        lastName: '',
-        address: '',
-        city: '',
-        zip: '',
-        phone: '',
-        bankAccount: '',
-        newFeatures: true,
-    });
-    
-    const tEmail = i18n.t('email');
-    const tPassword = i18n.t('password');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const router = useRouter();
+    const [error, setError] = useState('');
 
-    const iconColor = useThemeColor({}, 'iconColor');
+    const theme = useTheme();
 
-    const expenseIcon = <Ionicons name="ios-wallet" size={24} color={iconColor} />;
-    const electionIcon = <Ionicons name="ios-people" size={24} color={iconColor} />;
-
-    const services = [
-        {
-          id: 1,
-          title: 'Expenses',
-          subtitle: 'Our expenses module lets you submit and track your expenses directly from the BISO app.',
-          icon: expenseIcon,
-        },
-        {
-          id: 2,
-          title: 'Elections',
-          subtitle: 'The election module lets you vote on issues and candidates directly from the BISO app. (Requires a BISO account, and authentication.)',
-          icon: electionIcon,
-        }
-      ];
-      
-      const renderExpensesStep = () => {
-        return (
-            <View>
-                <TextInput
-                    label="First Name"
-                    value={profile.firstName}
-                    onChangeText={(text) => setProfile({ ...profile, firstName: text })}
-                />
-                <TextInput
-                    label="Last Name"
-                    value={profile.lastName}
-                    onChangeText={(text) => setProfile({ ...profile, lastName: text })}
-                />
-                <TextInput
-                    label="Address"
-                    value={profile.address}
-                    onChangeText={(text) => setProfile({ ...profile, address: text })}
-                />
-                <TextInput
-                    label="City"
-                    value={profile.city}
-                    onChangeText={(text) => setProfile({ ...profile, city: text })}
-                />
-                <TextInput
-                    label="Zip"
-                    value={profile.zip}
-                    onChangeText={(text) => setProfile({ ...profile, zip: text })}
-                />
-                <TextInput
-                    label="Phone"
-                    value={profile.phone}
-                    onChangeText={(text) => setProfile({ ...profile, phone: text })}
-                />
-                <TextInput
-                    label="Bank Account"
-                    value={profile.bankAccount}
-                    onChangeText={(text) => setProfile({ ...profile, bankAccount: text })}
-                />
-            </View>
-        );
-    };
-
-    const renderElectionsStep = () => {
-        return (
-            <View>
-                <Text>Step 2</Text>
-            </View>
-        );
-    };
-
-
-
-    useEffect(() => {
-        setSteps([
-        <View key="1">
-            <Text>
-                Will you be using any of these services?
-            </Text>
-            <MultiSelectList items={services} onSelectionChange={setSelectedItems} />
-        </View>,
-        
-        <View key="2">
-            {selectedItems.has(1) && renderExpensesStep()}
-        </View>,
-        <View key="3">
-            <TextInput
-                label={tEmail}
-                value={email}
-                onChangeText={(text) => setEmail(text)}
-            />
-            <TextInput
-                label={tPassword}
-                value={password}
-                onChangeText={(text) => setPassword(text)}
-            />
-        </View>,
-        ]);
-    }, [selectedItems, email, password]);
-    
-    const onRegister = () => {
-        console.log('onRegister');
-    };
-    
-    return (
-        <View style={styles.container}>
-        <Stepper steps={steps} onRegister={onRegister} />
-        </View>
+    const ErrorCard = () => (
+        <Card style={styles.errorCard} status='danger'>
+            <Text style={styles.errorText}>{error}</Text>
+        </Card>
     );
+
+    const validations = () => {
+        if (!email) {
+            setError(i18n.t('emailRequired'));
+            return false;
+        }
+        if (!password) {
+            setError(i18n.t('passwordRequired'));
+            return false;
+        }
+        if (password !== confirmPassword) {
+            setError(i18n.t('passwordsDontMatch'));
+            return false;
+        }
+        return true;
+    };
+    
+    const handleSignup = async (email: string, password: string) => {
+        if (validations()) {
+            try {
+                await register(email, password);
+            } catch (error) {
+                setError(error.message);
+            }
+        }
     };
 
-    const styles = StyleSheet.create({
+    
+    
+    useEffect(() => {
+        if (user) {
+       router.back();
+        }
+    }, [user]);
+
+    const BackIcon = (props: any) => (
+        <TouchableOpacity onPress={() => router.back()}>
+        <Ionicons {...props} name='arrow-back' size={40} color={theme['color-primary-100']} />
+        </TouchableOpacity>
+      );
+
+
+
+      return (
+        <GradientLayout style={styles.container}>
+          <Layout style={styles.header}>
+            <TouchableWithoutFeedback onPress={() => router.back()}>
+                <BackIcon style={styles.backButton}/>
+            </TouchableWithoutFeedback>
+          </Layout>
+          <Layout style={styles.content}>
+            <LanguageSwitcher style={styles.languageSwitcher} />
+            <Text style={styles.title} category="h1">
+                {i18n.t('signUp')}
+            </Text>
+            {error ? <ErrorCard /> : null}
+            <Input
+                style={styles.input}
+                placeholder={i18n.t('email')}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                />
+            <Input
+                style={styles.input}
+                placeholder={i18n.t('password')}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                />
+            <Input style={styles.input} placeholder={i18n.t('confirmPassword')} secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
+            <Button onPress={() => handleSignup(email, password)}>{i18n.t('signUp')}</Button>
+            <Link href="/login">
+                <Text style={styles.link}>{i18n.t('login')}</Text>
+            </Link>
+          </Layout>
+        </GradientLayout>
+      );
+}      
+
+const styles = StyleService.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
     },
-    });
-    
-    export default RegisterScreen;
+    errorCard: {
+        width: '100%',
+        marginBottom: 10,
+    },
+    errorText: {
+        color: 'white',
+    },
+    header: {
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        backgroundColor: 'transparent',
+        position: 'absolute',
+        top: 30,
+        left: 10,
+    },
+    backButton: {
+        // other styles as before
+    },
+    content: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    languageSwitcher: {
+        // adjust this based on your LanguageSwitcher component's size
+    },
+    title: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    input: {
+        width: '100%',
+        marginVertical: 10,
+        height: 50,
+    },
+    link: {
+        color: '#007AFF',
+    },
+  });
+  

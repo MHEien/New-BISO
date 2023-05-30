@@ -43,6 +43,10 @@
     "contact_details": "Kontaktinfo",
     "payment_details": "Betalingsinfo",
     "login_biso": "Logg inn med BISO",
-    "favorite_units": "Favorittenheter"
+    "favorite_units": "Favorittenheter",
+    "emailRequired": "E-post er påkrevd",
+    "emailInvalid": "Ugyldig e-post",
+    "passwordRequired": "Passord er påkrevd",
+    "passwordsDontmatch": "Passordene stemmer ikke overens"
   }
   

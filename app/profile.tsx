@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Button } from 'react-native';
+import { Dimensions, TouchableOpacity} from 'react-native';
 import Accordion from '../components/Accordion';
 import IonIcons from '@expo/vector-icons/Ionicons';
 import { useThemeColor } from '../components/Themed';
@@ -15,12 +15,16 @@ import { useUserProfile, getDepartments } from '../hooks';
 import { Subunit, UserProfile } from '../types';
 import LanguageSwitcher from '../components/LanguangeSwitcher';
 import i18n from '../constants/localization';
+import { Layout, Text, Button, Input, useTheme, StyleService } from '@ui-kitten/components';
 
 const screenWidth = Dimensions.get('window').width;
 
 const Profile: React.FC = () => {
-const icon = <IonIcons name="information-circle-outline" size={24} color={useThemeColor({}, 'iconColor')} />;
-const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
+
+const theme = useTheme();
+
+const icon = <IonIcons name="information-circle-outline" size={24} color={theme['color-primary-500']} />;
+const primaryBackgroundColor = theme['color-primary-100'];
     
     const { user } = useAuthentication();
     const { profile, updateUserProfile } = useUserProfile();
@@ -60,33 +64,33 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
     if (!user) return null;
 
     const addressDetails = (
-        <View style={{ backgroundColor: primaryBackgroundColor }}>
+        <Layout style={{ backgroundColor: primaryBackgroundColor }}>
             <TextInput label="Address" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, address: value })} value={newProfile?.address} />
             <TextInput label="Postal code" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, zip: value })} value={newProfile?.zip} />
             <TextInput label="City" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, city: value })} value={newProfile?.city} />
-        </View>
+        </Layout>
     );
 
     const contactDetails = (
-        <View>
+        <Layout>
             <TextInput label="Phone number" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, phone: value })} value={newProfile?.phone} />
             <TextInput label="Email" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, email: value })} value={newProfile?.email} />
-        </View>
+        </Layout>
     );
 
 
     //Display a SwitchSelector to choose between norwegian and international bank account. If norwegian, display bank account number input field, if international display a IBAN and BIC field.
     const paymentDetails = (
-        <View>
+        <Layout>
             <TextInput label="Bank account number" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, bankAccount: value })} value={newProfile?.bankAccount} />
             <TextInput label="BIC (If international bank)" style={styles.input} onChangeText={(value) => setNewProfile({ ...newProfile, bic: value })} value={newProfile?.bic} />
-        </View>
+        </Layout>
     );
 
 
 
     const departmentDetails = (
-        <View>
+        <Layout>
           {selectedTags.map((tag) => (
             <Tag
               color='blue'
@@ -136,7 +140,7 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
           >
             <Text style={styles.addTagButtonText}>Add units</Text>
           </TouchableOpacity>
-        </View>
+        </Layout>
       );
       
       
@@ -144,7 +148,7 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
 
 
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <ProfileImage />
         <Accordion
         title={i18n.t('address_details')}
@@ -177,20 +181,18 @@ const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
         expandable
       />
     <Button
-  title={i18n.t('save')}
   onPress={() => {
     if (newProfile) {
       const updatedProfile = { ...newProfile, subunits: selectedTags };
       updateUserProfile(updatedProfile);
     }
-  }}
-/>
+  }}>{i18n.t('save')}</Button>
     <LanguageSwitcher />
-    </View>
+    </Layout>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleService.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',

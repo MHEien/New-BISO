@@ -1,89 +1,118 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet} from 'react-native';
-import { View, Button, Text } from '../components/Themed';
+import { StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { useAuthentication } from '../hooks/useAuthentication';
 import { login } from '../hooks/login';
 import LanguageSwitcher from '../components/LanguangeSwitcher';
 import i18n from '../constants/localization';
-import TextInput from '../components/TextInput';
 import { Link } from 'expo-router';
 import { useThemeColor } from '../components/Themed';
-import { useNavigation } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { Layout, Text, Input, Button, useTheme, StyleService } from '@ui-kitten/components';
+import { GradientLayout } from '../components/GradientLayout';
+import { Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
+const windowsHeight = Dimensions.get('window').height;
 
 export default function Login() {
     const { user } = useAuthentication();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const navigation = useNavigation();
+    const router = useRouter();
 
-    const linkTextColor = useThemeColor({}, 'text');
+    const theme = useTheme();
 
     
     useEffect(() => {
         if (user) {
-        navigation.goBack();
+       router.back();
         }
     }, [user]);
 
+    const BackIcon = (props: any) => (
+        <TouchableOpacity onPress={() => router.back()}>
+        <Ionicons {...props} name='arrow-back' size={40} color={theme['color-primary-100']} />
+        </TouchableOpacity>
+      );
 
 
-    return (
-        <View style={styles.container}>
-        <Text style={styles.title}>{i18n.t('login')}</Text>
-        <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-        <LanguageSwitcher />
-        <TextInput
-            style={styles.input}
-            onChangeText={setEmail}
-            value={email}
-            label="Email"
-        />
-        <TextInput
-            style={styles.input}
-            onChangeText={setPassword}
-            value={password}
-            label="Password"
-        />
-        <Button
-            title="Login"
-            onPress={() => login(email, password)}
-        />
-        <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-        <View style={styles.row}>
-        <Text> Not registered?</Text>
-        <Link style={{ color: linkTextColor }} href="/register">
-            <Text> Register</Text>
-        </Link>
-        </View>
-        </View>
-    );
-}
+      return (
+        <GradientLayout style={styles.container}>
+          <Layout style={styles.header}>
+            <TouchableWithoutFeedback onPress={() => router.back()}>
+                <BackIcon style={styles.backButton}/>
+            </TouchableWithoutFeedback>
+          </Layout>
+          <Layout style={styles.content}>
+            <LanguageSwitcher style={styles.languageSwitcher} />
+            <Text style={styles.title} category="h1">
+                {i18n.t('login')}
+            </Text>
+            <Input
+                style={styles.input}
+                placeholder={i18n.t('email')}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                />
+            <Input
+                style={styles.input}
+                placeholder={i18n.t('password')}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                />
+            <Button onPress={() => login(email, password)}>{i18n.t('login')}</Button>
+            <Link href="/register">
+                <Text style={styles.link}>{i18n.t('signUp')}</Text>
+            </Link>
+          </Layout>
+        </GradientLayout>
+      );
+}      
 
-
-const styles = StyleSheet.create({
+const styles = StyleService.create({
     container: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        padding: 20,
+    },
+    header: {
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        backgroundColor: 'transparent',
+        position: 'absolute',
+        top: 30,
+        left: 10,
+    },
+    backButton: {
+        // other styles as before
+    },
+    content: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    languageSwitcher: {
+        // adjust this based on your LanguageSwitcher component's size
     },
     title: {
-        fontSize: 20,
+        fontSize: 30,
         fontWeight: 'bold',
-    },
-    separator: {
-        marginVertical: 30,
-        height: 1,
-        width: '80%',
+        textAlign: 'center',
     },
     input: {
-        height: 40,
-        margin: 12,
-        borderWidth: 1,
-        flex: 1,
-        width: '300',
+        width: '100%',
+        marginVertical: 10,
+        height: 50,
     },
-    row: {
-        flexDirection: 'row',
+    link: {
+        color: '#007AFF',
     },
-});
+  });
+  

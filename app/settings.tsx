@@ -2,26 +2,27 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Grid from '../components/Grid';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useThemeColor, Text, Button } from '../components/Themed';
 import i18n from '../constants/localization';
 import { useRouter, useNavigation } from 'expo-router';
 import { Link } from 'expo-router';
 import { logOut } from '../hooks/login';
+import { Layout, Button, Text, useTheme } from '@ui-kitten/components';
 
 const Settings = () => {
     
-      const backgroundColor = useThemeColor({}, 'background');
-      const primaryColor = useThemeColor({}, 'primary');
-      const iconColor = useThemeColor({}, 'iconColor');
+    const theme = useTheme();
+
+    const iconColor = theme['color-primary-500'];
+
       const expenseIcon = <Ionicons name="wallet-outline" size={40} color={iconColor} />;
       const electionIcon = <Ionicons name="people-outline" size={40} color={iconColor} />;
       const profileIcon = <Ionicons name="person-outline" size={40} color={iconColor} />;
       //Route translations
       return (
-        <View style={[styles.container, { backgroundColor }]}>
+        <Layout style={styles.container}>
             <Text style={styles.title}>Settings</Text>
-            <Button onPress={logOut} title='Logout' />
-        </View>
+            <Button onPress={logOut}>Log out</Button>
+        </Layout>
         );
     };
 

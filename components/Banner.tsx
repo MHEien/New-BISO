@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import { Button } from './Themed';
+import { StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import i18n from '../constants/localization';
-import { useThemeColor } from './Themed';
+import { useTheme, Button, Layout, Text, StyleService } from '@ui-kitten/components';
 
 interface BannerProps {
   isAuthenticated: boolean;
@@ -16,30 +15,29 @@ const Banner: React.FC<BannerProps> = ({ isAuthenticated, onLoginPress, style })
   if (isAuthenticated) {
     return null;
   }
-  const bannerColor = useThemeColor({}, 'primaryBackground');
-  const textColor = useThemeColor({}, 'text');
-  const buttonColor = useThemeColor({}, 'primary');
-  const buttonTextColor = useThemeColor({}, 'text');
+
+
+  const theme = useTheme();
 
 
 
   return (
-    <View style={[styles.banner, style, { backgroundColor: bannerColor }]}>
-      <Text style={[styles.welcomeText, { color: textColor }]}>
+    <Layout style={[styles.banner, style, { backgroundColor: theme['color-primary-500'] }]}>
+      <Text style={[styles.welcomeText, { color: theme['color-primary-100'] }]}>
         {i18n.t('welcome_message')}
       </Text>
       <Link href={'/login'}>
-        <View style={[styles.loginButton, { backgroundColor: buttonColor }]}>
-          <Text style={[styles.buttonText, { color: buttonTextColor }]}>
+        <Layout style={[styles.loginButton, { backgroundColor: theme['color-primary-100'] }]}>
+          <Text style={[styles.buttonText, { color: theme['color-primary-500'] }]} category="s1">
             {i18n.t('login')}
           </Text>
-        </View>
+        </Layout>
       </Link>
-    </View>
+    </Layout>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleService.create({
   banner: {
     flexDirection: 'row',
     justifyContent: 'space-between',

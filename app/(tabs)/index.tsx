@@ -6,6 +6,8 @@ import { useAuthentication } from '../../hooks/useAuthentication';
 import { Link } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { getWPData } from '../../hooks/getWPData';
+import { Layout } from '@ui-kitten/components';
+import { GradientLayout } from '../../components/GradientLayout';
 
 export default function Home() {
   
@@ -63,10 +65,10 @@ export default function Home() {
 
 
   return (
-    <View style={styles.container}>
+    <GradientLayout style={styles.container}>
       {bannerVisible && <Banner isAuthenticated={isAuthenticated} onLoginPress={onLoginPress} />}
         <NewsList newsPosts={newsPosts} onBannerVisibilityChange={setBannerVisible} />
-    </View>
+    </GradientLayout>
   );
   
 }

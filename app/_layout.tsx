@@ -14,6 +14,12 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { UserProfile } from '../types';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout, Button, useTheme } from '@ui-kitten/components';
+import { default as theme } from '../constants/theme.json';
+import { Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import WelcomeScreen from './welcome';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -81,19 +87,19 @@ async function registerForPushNotificationsAsync(profile: UserProfile, updateUse
 
 
 
-
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
 
-  const router = useRouter();
-
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
+
+  
+  
 
   return (
     <>
@@ -111,9 +117,11 @@ function RootLayoutNav() {
   const responseListener = useRef<Notifications.Subscription>();
   const [locale, setLocale] = useState<string>(i18n.locale);
 const [initialRoute, setInitialRoute] = useState<string | undefined>(undefined);
+const [isFirstTime, setIsFirstTime] = useState<boolean>(false);
 const { profile, updateUserProfile } = useUserProfile();
 
 const router = useRouter();
+const theme = useTheme();
 
   useEffect(() => {
     registerForPushNotificationsAsync(profile, updateUserProfile).then(token => setExpoPushToken(token));
@@ -162,15 +170,66 @@ const router = useRouter();
     }
   }, [profile, expoPushToken]);
 
+  const checkIfFirstTime = async () => {
+    try {
+      const value = await AsyncStorage.getItem('firstTime');
+
+      if (value === null) {
+        setIsFirstTime(true);
+        await AsyncStorage.setItem('firstTime', 'false');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    checkIfFirstTime();
+  }, []);
+  
+
+  if (isFirstTime) {
+    return (
+      <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
+        <LanguageProvider language={locale} setLanguage={setLocale}>
+          <WelcomeScreen setIsFirstTime={setIsFirstTime} />
+        </LanguageProvider>
+      </ApplicationProvider>
+    );
+  }
 
 
   return (
-    <>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
         <LanguageProvider language={locale} setLanguage={setLocale}>
-        <Stack>
+        <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: theme['color-basic-1000'],
+          },
+          headerTitleStyle: {
+            color: theme['color-basic-1000'],
+          },
+        }}
+        >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen
+        name="login"
+        options={{
+          title: i18n.t('login'),
+          headerShown: false,
+          presentation: 'fullScreenModal',
+        }}
+      />
+          <Stack.Screen
+        name="register"
+        options={{
+          title: i18n.t('signUp'),
+          headerShown: false,
+          presentation: 'fullScreenModal',
+        }}
+      />
           <Stack.Screen
         name="profile"
         options={{
@@ -193,7 +252,6 @@ const router = useRouter();
       />
         </Stack>
         </LanguageProvider>
-      </ThemeProvider>
-    </>
+      </ApplicationProvider>
   );
 }

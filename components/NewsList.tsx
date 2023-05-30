@@ -1,15 +1,14 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, FlatList, Dimensions } from 'react-native';
+import {Image, FlatList, Dimensions } from 'react-native';
 import { useThemeColor } from './Themed';
 import { NewsPost, NewsListProps } from '../types';
-
+import { Layout, Text, useTheme, StyleService } from '@ui-kitten/components';
 
 
 const screenWidth = Dimensions.get('window').width;
 
 const NewsList: React.FC<NewsListProps> = ({ newsPosts }) => {
-  const newsPostContainerColor = useThemeColor({}, 'primaryBackground');
-  const textColor = useThemeColor({}, 'text');
+  const theme = useTheme();
 
   // Sort the newsPosts array to display featured posts first
   const sortedNewsPosts = newsPosts.sort((a, b) => {
@@ -23,25 +22,25 @@ const NewsList: React.FC<NewsListProps> = ({ newsPosts }) => {
   });
 
   const renderItem = ({ item }: { item: NewsPost }) => (
-    <View style={[styles.newsPostContainer, { backgroundColor: newsPostContainerColor }]}>
-      <View style={styles.header}>
+    <Layout style={[styles.newsPostContainer, { backgroundColor: theme['color-basic-800'] }]}>
+      <Layout style={styles.header}>
         <Image source={{ uri: item.departmentLogo }} style={styles.departmentLogo} />
-        <View style={styles.departmentInfo}>
-          <Text style={[styles.departmentTitle, { color: textColor }]}>{item.department}</Text>
+        <Layout style={styles.departmentInfo}>
+          <Text style={[styles.departmentTitle, { color: theme['color-basic-100'] }]}>{item.department}</Text>
           <Text style={styles.postDate}>{item.date}</Text>
-        </View>
+        </Layout>
         {item.isFeatured && (
-          <View style={styles.featuredContainer}>
+          <Layout style={styles.featuredContainer}>
             <Text style={styles.featuredText}>Featured</Text>
-          </View>
+          </Layout>
         )}
-      </View>
-      <View style={{ height: 200 }}>
+      </Layout>
+      <Layout style={{ height: 200 }}>
       <Image source={{ uri: item.image }} style={styles.postImage} />
-      </View>
-      <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
-      <Text style={[styles.subtitle, { color: textColor }]}>{item.subtitle}</Text>
-    </View>
+      </Layout>
+      <Text style={[styles.title, { color: theme['color-basic-100'] }]}>{item.title}</Text>
+      <Text style={[styles.subtitle, { color: theme['color-basic-100'] }]}>{item.subtitle}</Text>
+    </Layout>
   );
 
 return (
@@ -53,7 +52,7 @@ return (
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleService.create({
   newsPostContainer: {
     marginBottom: 15,
     paddingTop: 10,

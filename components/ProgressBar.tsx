@@ -1,44 +1,49 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { ProgressBarProps, ProgressBarData } from '../types';
-import { useThemeColor } from '../components/Themed';
+import { useTheme, Layout, Text, StyleService } from '@ui-kitten/components';
+import { Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ data, style, header, valueLabel }) => {
 
     
-    const backgroundColor = useThemeColor({}, 'primaryBackground');
-    const primaryColor = useThemeColor({}, 'primary');
-    const textColor = useThemeColor({}, 'text');
+    const theme = useTheme()
+
+
   return (
-    <View style={[{ backgroundColor }, style, { borderRadius: 10 }]}>
-      {header && <Text style={[styles.header, { color: textColor }]}>{header}</Text>}
+    <Layout style={{backgroundColor: 'transparent', ...style}}>
+      {header && <Text style={[styles.header, { color: theme['color-basic-100'] }]}>{header}</Text>}
       {data.map((item, index) => {
         const progressPercentage = (item.value / item.maxValue) * 100;
 
         return (
-          <View key={index} style={styles.itemContainer}>
-            <Text style={[styles.label, { color: textColor }]}>{item.label}</Text>
-            <View style={styles.progressBackground}>
-              <View style={[styles.progressBar, { width: `${progressPercentage}%`, backgroundColor: primaryColor }]} />
-            </View>
-            <Text style={[styles.valueText, { color: textColor }]}>
+          <Layout key={index} style={styles.itemContainer}>
+            <Text style={[styles.label, { color: theme['color-basic-100'] }]}>{item.label}</Text>
+            <Layout style={styles.progressBackground}>
+              <Layout style={[styles.progressBar, { width: `${progressPercentage}%`, backgroundColor: theme['color-primary-500'] }]} />
+            </Layout>
+            <Text style={[styles.valueText, { color: theme['color-basic-100'] }]}>
               {item.value}/{item.maxValue} {valueLabel}
             </Text>
-          </View>
+          </Layout>
         );
       })}
-    </View>
+    </Layout>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleService.create({
   header: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   itemContainer: {
+    width: 
+    width - 40,
+    backgroundColor: 'transparent',
   },
   label: {
     marginBottom: 5,

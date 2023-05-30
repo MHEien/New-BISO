@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, FlatList, Button, KeyboardAvoidingView, ScrollView, Platform, Switch, } from 'react-native';
+import { TouchableOpacity, FlatList, KeyboardAvoidingView, ScrollView, Platform, Switch, } from 'react-native';
 import { useThemeColor, Text } from '../components/Themed';
 import { useRouter } from 'expo-router';
 import { getDepartments, useAuthentication } from '../hooks';
 import { Expense, Attachment, Subunit } from '../types';
 import Accordion from '../components/Accordion';
-import TextInput from '../components/TextInput';
 import IonIcons from '@expo/vector-icons/Ionicons';
 import { getNextInvoiceId } from '../hooks/getInvoiceId';
 import generatePurpose from '../hooks/getPurpose';
@@ -18,10 +17,14 @@ import axios from 'axios';
 import Selector from '../components/Selector';
 import { addDoc, collection } from 'firebase/firestore';
 import { db, storage } from '../config/firebase';
+import { Layout, StyleService, useTheme, Button, Input } from '@ui-kitten/components';
 
 const CreateExpenseScreen: React.FC = () => {
   const router = useRouter();
   const { user, profile } = useAuthentication();
+  const theme = useTheme();
+
+
   const emptyExpense: Expense = {
     uid: user?.uid || '',
     id: '',
@@ -74,9 +77,9 @@ const CreateExpenseScreen: React.FC = () => {
     router.push('profile');
   };
 
-  const backgroundColor = useThemeColor({}, 'background');
-  const primaryBackgroundColor = useThemeColor({}, 'primaryBackground');
-  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = theme['color-basic-1000'];
+  const primaryBackgroundColor = theme['color-basic-1100'];
+  const textColor = theme['color-basic-100'];
 
 // Initialize profile values or empty data.
 useEffect(() => {
@@ -163,10 +166,10 @@ const createExpense = async (expense: Expense) => {
 const DepartmentSelector = () => {
   const [showDepartments, setShowDepartments] = useState(false);
   
-  // Return a TextInput if there are no favorite units available
+  // Return a Input if there are no favorite units available
   if (favoriteUnits.length === 0) {
     return (
-      <View>
+      <Layout style={{ flex: 1, backgroundColor: 'transparent' }}>
       <TouchableOpacity
         onPress={() => setShowDepartments(true)}
         style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]}
@@ -191,13 +194,13 @@ const DepartmentSelector = () => {
         }
         }
       />
-    </View>
+    </Layout>
     );
   }
 
   if (favoriteUnits.length > 1) {
     return (
-      <View>
+      <Layout>
         <TouchableOpacity
           onPress={() => setShowDepartments(true)}
           style={{
@@ -231,12 +234,12 @@ const DepartmentSelector = () => {
             }
           }}
         />
-      </View>
+      </Layout>
     );
   }
   
   return (
-    <View>
+    <Layout>
       <TouchableOpacity
         onPress={() => setShowDepartments(true)}
         style={{
@@ -251,15 +254,9 @@ const DepartmentSelector = () => {
         </Text>
         <IonIcons name="chevron-down" size={20} color={textColor} />
       </TouchableOpacity>
-    </View>
+    </Layout>
   );
 };
-
-  
-  
-
-
-  
 
   //Calculate attachment amounts to number, and calculate total amount
   useEffect(() => {
@@ -373,7 +370,6 @@ return (
   keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
 >
     <ScrollView>
-      <View>
         <Text style={[styles.header, { color: textColor }]}>Contact details</Text>
         <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handleContactDetailsPress}>
           <Text style={[styles.fieldText, { color: textColor }]}>Contact details fetched from profile.</Text>
@@ -383,21 +379,21 @@ return (
         </TouchableOpacity>
         <DepartmentSelector />
         <Text> Creating a profile is required for submitting expenses.</Text>
-      </View>
-      <View style={{ marginBottom: 16, flex: 1 }}>
-        <View style={styles.row}>
+
+      <Layout style={{ marginBottom: 16, flex: 1, backgroundColor: 'transparent' }}>
+        <Layout style={styles.row}>
           <Text style={[styles.header, { color: textColor }]}>Attachments</Text>
-          <TouchableOpacity  onPress={() => setModalVisible(true)}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
           <IonIcons
             name="add-circle"
             size={24}
             color={textColor}
           />
           </TouchableOpacity>
-        </View>
+        </Layout>
 
           <ScrollView>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
   {expenseDetails.attachments.map((attachment, index) => (
     <Accordion
       title={`Attachment ${index + 1}`}
@@ -414,8 +410,8 @@ return (
         });
       }}
     >
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
-        <TextInput
+      <Layout style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+        <Input
           style={{ marginBottom: 8 }}
           label="Description"
           value={attachment.description}
@@ -428,7 +424,7 @@ return (
             });
           }}
         />
-        <TextInput
+        <Input
           style={{ marginBottom: 8 }}
           label="Date"
           value={attachment.date}
@@ -441,7 +437,7 @@ return (
             });
           }}
         />
-        <TextInput
+        <Input
           style={{ marginBottom: 8 }}
           label="Amount"
           value={attachment.amount}
@@ -454,13 +450,13 @@ return (
             });
           }}
         />
-      </View>
+      </Layout>
     </Accordion>
   ))}
-</View>
+</Layout>
           </ScrollView>
-      </View>
-      <Button title="Submit" onPress={() => handleSubmit()} />
+      </Layout>
+      <Button onPress={handleSubmit}>Submit</Button>
     </ScrollView>
     <Modal
       visible={modalVisible}
@@ -485,7 +481,7 @@ return (
 
 
 
-const styles = StyleSheet.create({
+const styles = StyleService.create({
   container: {
     flex: 1,
     padding: 16,
@@ -511,6 +507,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   input: {
     marginBottom: 16,

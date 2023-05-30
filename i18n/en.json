@@ -43,6 +43,10 @@
     "contact_details": "Contact Details",
     "payment_details": "Payment Details",
     "login_biso": "Login to BISO",
-    "favorite_units": "Favorite Units"
+    "favorite_units": "Favorite Units",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Email is invalid",
+    "passwordRequired": "Password is required",
+    "passwordsDontmatch": "Passwords don't match"
   }
   

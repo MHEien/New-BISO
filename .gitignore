@@ -10,6 +10,7 @@ npm-debug.*
 *.orig.*
 web-build/
 .yarn/
+config/firebase.ts
 
 # macOS
 .DS_Store

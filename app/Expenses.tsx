@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
 import Grid from '../components/Grid';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useThemeColor, Text } from '../components/Themed';
@@ -11,6 +10,7 @@ import ReimbursementListItem from '../components/ReimbursementListItem';
 import { useAuthentication } from '../hooks/useAuthentication';
 import { getExpenses } from '../hooks/getExpenses';
 import FAB from '../components/FAB';
+import { useTheme, Layout, StyleService } from '@ui-kitten/components';
 
 export default function Expenses() {
   const { user } = useAuthentication();
@@ -65,14 +65,14 @@ export default function Expenses() {
       return null;
     }
     return (
-      <View style={styles.loadingFooter}>
+      <Layout style={styles.loadingFooter}>
         <Text style={styles.loadingFooterText}>Loading...</Text>
-      </View>
+      </Layout>
     );
   };
 
   return (
-    <View>
+    <Layout>
       <FlatList
         data={expenses}
         renderItem={renderItem}
@@ -87,11 +87,11 @@ export default function Expenses() {
         onPress={() => router.push('createExpense')}
         style={styles.fab}
       />
-    </View>
+    </Layout>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleService.create({
   container: {
     flex: 1,
     alignItems: 'center',
