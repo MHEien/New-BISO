@@ -188,7 +188,7 @@ const theme = useTheme();
   }, []);
   
 
-  if (isFirstTime) {
+  if (!profile && isFirstTime) {
     return (
       <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
         <LanguageProvider language={locale} setLanguage={setLocale}>

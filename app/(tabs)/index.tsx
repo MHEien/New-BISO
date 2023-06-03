@@ -8,13 +8,15 @@ import { useState, useEffect } from 'react';
 import { getWPData } from '../../hooks/getWPData';
 import { Layout } from '@ui-kitten/components';
 import { GradientLayout } from '../../components/GradientLayout';
+import TermsModal from '../../components/TermsModal';
 
 export default function Home() {
   
-  const { user } = useAuthentication();
+  const { user, profile } = useAuthentication();
   const isAuthenticated = user ? true : false;
   const [bannerVisible, setBannerVisible] = useState(true);
   const [news, setNews] = useState([]);
+  const [termsModalVisible, setTermsModalVisible] = useState(false);
 
   
 
@@ -62,11 +64,16 @@ export default function Home() {
     fetchData();
   }, []);
 
-
+  useEffect(() => {
+    if (profile && !profile.newFeatures) {
+      setTermsModalVisible(true);
+    }
+  }, [profile]);
 
   return (
     <GradientLayout style={styles.container}>
       {bannerVisible && <Banner isAuthenticated={isAuthenticated} onLoginPress={onLoginPress} />}
+      <TermsModal visible={termsModalVisible} setVisible={() => setTermsModalVisible(false)} />
         <NewsList newsPosts={newsPosts} onBannerVisibilityChange={setBannerVisible} />
     </GradientLayout>
   );

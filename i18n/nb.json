@@ -47,6 +47,8 @@
     "emailRequired": "E-post er påkrevd",
     "emailInvalid": "Ugyldig e-post",
     "passwordRequired": "Passord er påkrevd",
-    "passwordsDontmatch": "Passordene stemmer ikke overens"
+    "passwordsDontmatch": "Passordene stemmer ikke overens",
+    "agreeToTerms": "Jeg bekrefter å ha lest",
+    "termsAndConditions": "Vilkår og betingelser"
   }
   

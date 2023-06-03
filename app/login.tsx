@@ -89,7 +89,6 @@ const styles = StyleService.create({
         left: 10,
     },
     backButton: {
-        // other styles as before
     },
     content: {
         alignItems: 'center',
@@ -99,7 +98,6 @@ const styles = StyleService.create({
         backgroundColor: 'transparent',
     },
     languageSwitcher: {
-        // adjust this based on your LanguageSwitcher component's size
     },
     title: {
         fontSize: 30,

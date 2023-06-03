@@ -5,6 +5,7 @@ import { ReimbursementListItemProps } from '../types';
 import { expenseStatus } from '../hooks/expenseStatus';
 import { useThemeColor } from './Themed';
 import { useTheme, Text, StyleService, Layout } from '@ui-kitten/components';
+import { GradientLayout } from './GradientLayout';
 
 const ReimbursementListItem = ({ item, onPress, isApproved }: ReimbursementListItemProps) => {
 
@@ -80,10 +81,11 @@ const styles = StyleService.create({
   leftContainer: {
     flex: 1,
     marginRight: 16,
-    backgroundcolor: 'transparent'
+    backgroundColor: 'transparent',
   },
   rightContainer: {
     alignItems: 'flex-end',
+    backgroundColor: 'transparent',
   },
   title: {
     fontSize: 18,

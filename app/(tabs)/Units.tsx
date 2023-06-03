@@ -9,7 +9,7 @@ export default function TabOneScreen() {
 
   const fetchSubunits = async () => {
     try {
-      // Replace 'your-site.com' with your actual WordPress site URL.
+
       const response = await fetch('https://your-site.com/wp-json/acf/v3/subunits');
       const data = await response.json();
   

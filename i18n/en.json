@@ -47,6 +47,8 @@
     "emailRequired": "Email is required",
     "emailInvalid": "Email is invalid",
     "passwordRequired": "Password is required",
-    "passwordsDontmatch": "Passwords don't match"
+    "passwordsDontmatch": "Passwords don't match",
+    "agreeToTerms": "I confirm that I have read and agree to the",
+    "termsAndConditions": "Terms and Conditions"
   }
   

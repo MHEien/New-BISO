@@ -391,7 +391,6 @@ return (
           />
           </TouchableOpacity>
         </Layout>
-
           <ScrollView>
           <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
   {expenseDetails.attachments.map((attachment, index) => (

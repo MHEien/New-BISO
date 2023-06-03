@@ -11,6 +11,7 @@ import { Layout, Text, Input, Button, useTheme, StyleService, Modal, Card } from
 import { GradientLayout } from '../components/GradientLayout';
 import { Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { CheckBox } from '@ui-kitten/components';
 
 const windowsHeight = Dimensions.get('window').height;
 
@@ -23,6 +24,7 @@ export default function Login() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
     const [error, setError] = useState('');
+    const [hasAgreed, setHasAgreed] = useState(false);
 
     const theme = useTheme();
 
@@ -72,6 +74,14 @@ export default function Login() {
         </TouchableOpacity>
       );
 
+      const renderTermsLink = () => (
+        <Layout style={styles.termsContainer}>
+            <Text>{i18n.t('agreeToTerms')}</Text>
+            <Link href="https://biso.no">
+                <Text style={styles.termsLink}>{i18n.t('termsAndConditions')}</Text>
+            </Link>
+        </Layout>
+        );
 
 
       return (
@@ -103,7 +113,12 @@ export default function Login() {
                 secureTextEntry
                 />
             <Input style={styles.input} placeholder={i18n.t('confirmPassword')} secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
-            <Button onPress={() => handleSignup(email, password)}>{i18n.t('signUp')}</Button>
+                <CheckBox
+                    checked={hasAgreed}
+                    onChange={nextChecked => setHasAgreed(nextChecked)}>
+                    {renderTermsLink()}
+                </CheckBox>
+            <Button onPress={() => handleSignup(email, password)} disabled={!hasAgreed}>{i18n.t('signUp')}</Button>
             <Link href="/login">
                 <Text style={styles.link}>{i18n.t('login')}</Text>
             </Link>
@@ -160,6 +175,17 @@ const styles = StyleService.create({
     },
     link: {
         color: '#007AFF',
+    },
+    termsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+        backgroundColor: 'transparent',
+    },
+    termsLink: {
+        color: '#007AFF',
+        marginLeft: 5,
     },
   });
   
