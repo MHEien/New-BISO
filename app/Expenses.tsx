@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '../components/Grid';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useThemeColor, Text } from '../components/Themed';
 import i18n from '../constants/localization';
 import { useRouter } from 'expo-router';
 import { Expense } from '../types';
@@ -10,7 +9,7 @@ import ReimbursementListItem from '../components/ReimbursementListItem';
 import { useAuthentication } from '../hooks/useAuthentication';
 import { getExpenses } from '../hooks/getExpenses';
 import FAB from '../components/FAB';
-import { useTheme, Layout, StyleService } from '@ui-kitten/components';
+import { useTheme, Layout, StyleService, Text } from '@ui-kitten/components';
 
 export default function Expenses() {
   const { user } = useAuthentication();
@@ -20,9 +19,6 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   
   const router = useRouter();
-
-  //Colors
-  const iconColor = useThemeColor({}, 'iconColor');
 
 
   useEffect(() => {
@@ -83,7 +79,7 @@ export default function Expenses() {
         ListFooterComponent={renderFooter}
       />
       <FAB
-        icon={<Ionicons name="add" size={24} color={iconColor} />}
+        icon={<Ionicons name="add" size={24} />}
         onPress={() => router.push('createExpense')}
         style={styles.fab}
       />

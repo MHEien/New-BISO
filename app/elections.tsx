@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, View, useThemeColor } from '../components/Themed';
+import { Text, Layout } from '@ui-kitten/components';
 import { useAuthentication } from '../hooks/useAuthentication';
 import { ElectionProps } from '../types';
 import { getElections } from '../hooks/electionHooks';
@@ -32,24 +32,24 @@ export default function Elections() {
 
   if (!isAuthenticated && !email) {
     return (
-      <View style={styles.container}>
+      <Layout style={styles.container}>
         <Text>Join election by typing in the 5 code below</Text>
         <JoinElection />
         <Text>
           By signing in or creating an account, you will be able to see
           previously participated elections.
         </Text>
-      </View>
+      </Layout>
     );
   }
 
   if (elections.length === 0) {
     return (
-      <View style={styles.container}>
+      <Layout style={styles.container}>
         <Text>Join election by typing in the 5 code below</Text>
         <JoinElection />
         <Text>No elections found</Text>
-      </View>
+      </Layout>
     );
   }
 
@@ -58,17 +58,17 @@ export default function Elections() {
   }
 
   return (
-    <View style={styles.container}>
+    <Layout style={styles.container}>
       <JoinElection />
       <Text>Participated Elections</Text>
       <ScrollView>
         {elections.map((election) => (
-          <View key={election.id}>
+          <Layout key={election.id}>
             <Text>{election.name}</Text>
-          </View>
+          </Layout>
         ))}
       </ScrollView>
-    </View>
+    </Layout>
   );
 }
 

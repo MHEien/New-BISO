@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, FlatList, KeyboardAvoidingView, ScrollView, Platform, Switch, } from 'react-native';
+import { TouchableOpacity, FlatList, KeyboardAvoidingView, ScrollView, Platform, Switch, View } from 'react-native';
 import { useThemeColor, Text } from '../components/Themed';
 import { useRouter } from 'expo-router';
 import { getDepartments, useAuthentication } from '../hooks';
 import { Expense, Attachment, Subunit } from '../types';
 import Accordion from '../components/Accordion';
 import IonIcons from '@expo/vector-icons/Ionicons';
-import { getNextInvoiceId } from '../hooks/getInvoiceId';
 import generatePurpose from '../hooks/getPurpose';
 import { Camera, CameraType } from 'expo-camera';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
@@ -17,7 +16,7 @@ import axios from 'axios';
 import Selector from '../components/Selector';
 import { addDoc, collection } from 'firebase/firestore';
 import { db, storage } from '../config/firebase';
-import { Layout, StyleService, useTheme, Button, Input } from '@ui-kitten/components';
+import { Layout, StyleService, useTheme, Button, Input, CheckBox } from '@ui-kitten/components';
 
 const CreateExpenseScreen: React.FC = () => {
   const router = useRouter();
@@ -58,6 +57,8 @@ const CreateExpenseScreen: React.FC = () => {
   const [purposeEnabled, setPurposeEnabled] = useState(false);
   const [allDepartments, setAllDepartments] = useState<Subunit[]>([]);
   const [showPurposeModal, setShowPurposeModal] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [eventName, setEventName] = useState('');
 
 
   React.useEffect(() => {
@@ -292,10 +293,13 @@ const DepartmentSelector = () => {
   const handleOcr = async (image: string) => {
     const result = await MlkitOcr.detectFromUri(image);
     const text = result.map((block) => block.text).join('\n');
-    await axios.post('https://api.web.biso.no/openai', {
-      text,
-      token: 'sdbashdb13123ksadjdsn'
-    }).then((response) => {
+  
+    try {
+      const response = await axios.post('https://api.web.biso.no/openai', {
+        text,
+        token: 'sdbashdb13123ksadjdsn'
+      });
+  
       const data = response.data;
       const attachments = data.attachments;
       const newAttachments = attachments.map((attachment: any) => {
@@ -306,13 +310,19 @@ const DepartmentSelector = () => {
           amount: attachment.amount || '',
         };
       });
-      setExpenseDetails({
-        ...expenseDetails,
-        attachments: [...expenseDetails.attachments, ...newAttachments],
-      });
+  
+      setExpenseDetails(prevDetails => ({
+        ...prevDetails,
+        attachments: [...prevDetails.attachments, ...newAttachments],
+      }));
+  
       setCameraModalVisible(false);
-    });
+    } catch (error) {
+      // handle the error as you wish, e.g., console.error(error) or set an error message in the state
+      console.error(error);
+    }
   };
+  
   
   
   const handleSubmit = async () => {
@@ -322,20 +332,14 @@ const DepartmentSelector = () => {
     const uploadedAttachments = await Promise.all(
       attachmentsArray.map(async (attachment) => {
         if (attachment.file) {
-          // Generate a unique filename for the image
           const filename = `${user?.uid}_${Date.now()}`;
           const storageRef = ref(storage, `images/${filename}`);
   
-          // Convert the file to a Blob
           const blob = new Blob([attachment.file]);
-  
-          // Upload the Blob to the storage
           await uploadBytes(storageRef, blob);
   
-          // Get the download URL of the uploaded image
           const downloadURL = await getDownloadURL(storageRef);
   
-          // Return the updated attachment with the download URL
           return {
             ...attachment,
             image: downloadURL,
@@ -346,20 +350,18 @@ const DepartmentSelector = () => {
       })
     );
   
-    // Update the expense details with the uploaded attachments
-    setExpenseDetails({
-      ...expenseDetails,
-      attachments: uploadedAttachments,
-    });
+    const purpose = await generatePurpose(uploadedAttachments, eventName);
   
-    const purpose = await generatePurpose(uploadedAttachments);
-    setExpenseDetails({
-      ...expenseDetails,
+    // Update the expense details once with all changes
+    setExpenseDetails(prevDetails => ({
+      ...prevDetails,
+      attachments: uploadedAttachments,
       purpose: purpose,
-    });
+    }));
   
     createExpense(expenseDetails);
   };
+
 
 
 
@@ -377,9 +379,24 @@ return (
         <TouchableOpacity style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]} onPress={handlePayoutDetailsPress}>
           <Text style={[styles.fieldText, { color: textColor }]}>Payout details fetched from profile.</Text>
         </TouchableOpacity>
+        <View style={styles.row}>
+          <Text style={styles.fieldText}>
+            My expense belongs to
+          </Text>
+          <CheckBox
+            checked={checked}
+            onChange={nextChecked => setChecked(nextChecked)}>
+              {checked ? 'an event' : 'general'}
+            </CheckBox>
+        </View>
+        {checked ? <Input 
+          style={[styles.fieldContainer, { backgroundColor: primaryBackgroundColor }]}
+          placeholder='Event name'
+          value={eventName}
+          onChangeText={nextValue => setEventName(nextValue)}
+        /> : null}
         <DepartmentSelector />
         <Text> Creating a profile is required for submitting expenses.</Text>
-
       <Layout style={{ marginBottom: 16, flex: 1, backgroundColor: 'transparent' }}>
         <Layout style={styles.row}>
           <Text style={[styles.header, { color: textColor }]}>Attachments</Text>

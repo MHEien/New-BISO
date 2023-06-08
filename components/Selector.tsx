@@ -8,9 +8,9 @@ import {
   Dimensions,
   Switch,
 } from 'react-native';
-import { View, Text, useThemeColor } from '../components/Themed';
 import { SelectorProps } from '../types';
 import { Ionicons } from '@expo/vector-icons';
+import { Layout, Text, Input, StyleService, Button } from '@ui-kitten/components';
 
 const { width } = Dimensions.get('window');
 
@@ -46,9 +46,6 @@ const [selectedItems, setSelectedItems] = useState<{
   name: string;
   campus: string;
 }[]>([]);
-
-  const textColor = useThemeColor({}, 'text');
-  const buttonColor = useThemeColor({}, 'primary');
 
   const filteredData = favoritesOnly && enableFavorites && favoriteData !== undefined
     ? favoriteData
@@ -87,9 +84,9 @@ const [selectedItems, setSelectedItems] = useState<{
 
   return (
     <Modal visible={visible} transparent onRequestClose={onClose}>
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <View style={styles.header}>
+      <Layout style={styles.modalContainer}>
+        <Layout style={styles.modalContent}>
+          <Layout style={styles.header}>
             <Text style={styles.title}>Select an item</Text>
             <TouchableOpacity onPress={() => {
                 onSelect(selectedItems);
@@ -98,9 +95,9 @@ const [selectedItems, setSelectedItems] = useState<{
             }>
               <Ionicons name="checkmark" size={32} color="white" />
             </TouchableOpacity>
-          </View>
+          </Layout>
           {enableFavorites && (
-            <View style={styles.switchContainer}>
+            <Layout style={styles.switchContainer}>
               <TouchableOpacity
                 style={[
                   styles.switchButton,
@@ -119,13 +116,12 @@ const [selectedItems, setSelectedItems] = useState<{
               >
                 <Text style={styles.switchText}>Favorites</Text>
               </TouchableOpacity>
-            </View>
+            </Layout>
           )}
           {enableSearch && (
-  <TextInput
-    style={[styles.searchInput, { width: width, color: textColor }]}
+  <Input
+    style={[styles.searchInput, { width: width - 40 }]}
     placeholder="Search"
-    placeholderTextColor={textColor}
     onChangeText={setSearchTerm}
     value={searchTerm}
   />
@@ -152,11 +148,11 @@ const [selectedItems, setSelectedItems] = useState<{
 />
 
 <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-  <Text style={[styles.closeButtonText, { color: buttonColor }]}>Close</Text>
+  <Text style={[styles.closeButtonText, { color: 'blue' }]}>Close</Text>
 </TouchableOpacity>
 
-</View>
-</View>
+</Layout>
+</Layout>
 </Modal>
 );
 

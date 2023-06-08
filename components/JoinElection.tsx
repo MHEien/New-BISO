@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { TextInput, View, StyleSheet, Button } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useThemeColor } from './Themed';
+import { Layout, Input, Button, StyleService } from '@ui-kitten/components';
 
 
 const JoinElection = () => {
@@ -12,8 +12,8 @@ const JoinElection = () => {
 
 
   return (
-    <View style={styles.container}>
-        <TextInput
+    <Layout style={styles.container}>
+        <Input
           style={[styles.input, { color: textColor }]}
           maxLength={5}
           keyboardType="number-pad"
@@ -21,17 +21,17 @@ const JoinElection = () => {
           value={value}
         />
         <Button
-          title="Join"
           onPress={() => {
             router.push({ pathname: '/election', params: { electionCode: value } });
-          }}
-        />
-    </View>
+          }}>
+          Join Election
+          </Button>
+    </Layout>
   );
 };
 
 
-const styles = StyleSheet.create({
+const styles = StyleService.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
